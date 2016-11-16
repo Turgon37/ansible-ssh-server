@@ -1,0 +1,17 @@
+---
+- name: Start openssh daemon
+  service: 
+    name: '{{ sshd__service_name }}'
+    state: started
+  tags: ['sshd']
+
+- name: Test ssh daemon configuration and restart
+  command: sshd -t
+  notify: [ 'Restart sshd' ]
+  tags: ['sshd']
+
+- name: Restart sshd
+  service:
+    name: '{{ sshd__service_name }}'
+    state: restarted
+  tags: ['sshd']

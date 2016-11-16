@@ -1,0 +1,72 @@
+---
+- name: Include the OS specific variables
+  include_vars: "{{ item }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_distribution }}.yml"
+        - "{{ ansible_os_family }}.yml"
+      skip: true
+  tags: ['sshd']
+
+- name: Install the latest version of SSH server
+  package:
+    name: openssh-server
+    state: latest
+  tags: ['sshd']
+
+- name: Check OpenSSH server version
+  environment:
+    LC_MESSAGES: 'C'
+  shell: 'sshd -v 2>&1 | grep --only-matching --extended-regexp --regexp="OpenSSH_[a-z0-9.]+" | sed -re "s/^OpenSSH_([0-9]+\.[0-9]+).*/\1/"'
+  register: sshd__register_version
+  changed_when: False
+  check_mode: no
+  tags: ['sshd']
+
+- name: Ensure that Ed25519 host key is present
+  command: ssh-keygen -q -t ed25519 -N "" -f ssh_host_ed25519_key
+  args:
+    chdir: '/etc/ssh'
+    creates: '/etc/ssh/ssh_host_ed25519_key'
+  when: sshd__register_version.stdout|d() and
+        sshd__register_version.stdout | version_compare('6.5', '>=')
+  tags: ['sshd']
+
+- name: Get list of available host keys
+  shell: find /etc/ssh -maxdepth 1 -type f -name 'ssh_host_*_key.pub' -exec basename {} .pub \;
+  register: sshd__register_host_keys
+  changed_when: False
+  check_mode: no
+  tags: ['sshd']
+
+- name: Setup /etc/ssh/sshd_config
+  template:
+    src:    'etc/ssh/sshd_config.j2'
+    dest:   '/etc/ssh/sshd_config'
+    owner:  'root'
+    group:  'root'
+    mode:   '0640'
+    backup: yes
+    validate: 'sshd -t -f %s'
+  notify: [ 'Test ssh daemon configuration and restart' ]
+  tags: ['sshd']
+  
+- name: Check if /etc/ssh/moduli contains weak DH parameters
+  shell: awk '$5 < {{ sshd__moduli_minimum }}' /etc/ssh/moduli
+  register: sshd__register_moduli
+  changed_when: sshd__register_moduli.stdout
+  check_mode: no
+  tags: ['sshd']
+
+- name: Remove DH parameters smaller than the requested size
+  shell: awk '$5 >= {{ sshd__moduli_minimum }}' /etc/ssh/moduli > /etc/ssh/moduli.new ;
+         [ -r /etc/ssh/moduli.new -a -s /etc/ssh/moduli.new ] && mv /etc/ssh/moduli.new /etc/ssh/moduli || true
+  notify: [ 'Test ssh daemon configuration and restart' ]
+  when: sshd__register_moduli.stdout
+  tags: ['sshd']
+  
+- name: Enable SSH daemon at boot
+  service:
+    name: '{{ sshd__service_name }}'
+    enabled: yes
+  tags: ['sshd']
