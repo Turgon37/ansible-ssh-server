@@ -224,8 +224,17 @@ sshd__authorized_keys_lookup_user: 'nobody'
 # - ``options``: YAML text block which contains :manpage:`sshd_config(5)` options
 #   active in a given Match block.
 #
-sshd__match_list: [ '{{ sshd__match_group_sftponly }}' ]
+# This variable is intended to be used in Ansible’s global inventory.
+sshd__match_list_global: [ '{{ sshd__match_group_sftponly }}' ]
 
+# This variable is intended to be used in Ansible’s group var file.
+sshd__match_list_group: []
+
+# This variable is intended to be used in Ansible’s host var file.
+sshd__match_list_host: []
+
+# # Combine all match lists
+sshd__match_list: '{{ sshd__match_list_global + sshd__match_list_group + sshd__match_list_host }}'
 
 # Default ``Match`` conditional block which defines configuration for SFTPonly
 # accounts.
