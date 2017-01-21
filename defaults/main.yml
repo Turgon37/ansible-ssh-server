@@ -234,7 +234,7 @@ sshd__match_list_group: []
 sshd__match_list_host: []
 
 # # Combine all match lists
-sshd__match_list: '{{ sshd__match_list_global + sshd__match_list_group + sshd__match_list_host }}'
+sshd__match_list: '{{ sshd__match_list_host + sshd__match_list_global + sshd__match_list_group }}'
 
 # Default ``Match`` conditional block which defines configuration for SFTPonly
 # accounts.
