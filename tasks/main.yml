@@ -64,7 +64,7 @@
   notify: [ 'Test ssh daemon configuration and restart' ]
   when: sshd__register_moduli.stdout
   tags: ['sshd']
-  
+
 - name: Enable SSH daemon at boot
   service:
     name: '{{ sshd__service_name }}'
