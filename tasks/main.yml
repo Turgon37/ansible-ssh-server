@@ -39,6 +39,11 @@
   check_mode: no
   tags: ['sshd']
 
+- name: Install SSHD Banner
+  include: "banner.yml"
+  when: sshd__banner != 'none' or sshd__predefined_banner is defined
+  tags: ['sshd']
+
 - name: Setup /etc/ssh/sshd_config
   template:
     src:    'etc/ssh/sshd_config.j2'

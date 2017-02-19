@@ -1,0 +1,30 @@
+---
+- name: Assert banner settings
+  assert:
+    that:
+      - "(sshd__banner != 'none' and sshd__predefined_banner is not defined) or (sshd__banner == 'none' and sshd__predefined_banner is defined)"
+  tags: ['sshd']
+
+- name: Create remote banner /etc/issue.net 
+  become: yes
+  copy:
+    src: 'banner/{{ sshd__predefined_banner }}'
+    dest: '/etc/issue.net'
+    mode: 0644
+  when: sshd__predefined_banner is defined
+  tags: ['sshd']
+
+- name: Create local banner /etc/issue 
+  become: yes
+  copy:
+    src: 'banner/{{ sshd__predefined_banner }}'
+    dest: '/etc/issue'
+    mode: 0644
+  when: sshd__predefined_banner is defined
+  tags: ['sshd']
+
+- name: Set Banner option for sshd_config
+  set_fact:
+    sshd__banner: "/etc/issue.net"
+  when: sshd__predefined_banner is defined
+  tags: ['sshd']
