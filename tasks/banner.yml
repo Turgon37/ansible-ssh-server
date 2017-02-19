@@ -2,7 +2,7 @@
 - name: Assert banner settings
   assert:
     that:
-      - "(sshd__banner != 'none' and sshd__predefined_banner is not defined) or (sshd__banner == 'none' and sshd__predefined_banner is defined)"
+      - "not (sshd__banner != 'none' and sshd__predefined_banner is defined)"
   tags: ['sshd']
 
 - name: Create remote banner /etc/issue.net 
