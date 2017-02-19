@@ -17,6 +17,7 @@ sshd__host_keys: [ 'ed25519', 'rsa', 'ecdsa' ]
 
 # Path to file which should be displayed before user authentication.
 sshd__banner: 'none'
+#sshd__predefined_banner: 'pgis.issue.net'
 
 # How much information should be logged by ``sshd`` server.
 sshd__log_level: 'INFO'
