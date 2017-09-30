@@ -1,69 +1,84 @@
 ---
-# OpenSSH server configuration
-# --------------------------------
+# defaults file for ssh-server
+
+# Simple placeholder to allow other roles to detect this role
+ssh_server__role: True
+
+ssh_server_config_dir: /etc/ssh
 
 # the name of the ssh service
-sshd__service_name: ssh
+ssh_server__service_name: sshd
+
+# Specify minimum size of Diffie-Hellman parameters available to the SSH
+# server. Parameters smaller than the given amount will be removed from the
+# :file:`/etc/ssh/moduli` file.
+ssh_server__moduli_minimum: '4096'
+
+
+
+
+## SSHD settings
 
 # List of ports which ``sshd`` will listen on.
-sshd__ports: [ '22' ]
+ssh_server__ports:
+  - '22'
 
 # List of IP addresses on which ``sshd`` should listen for new connections. If
 # it's empty, ``sshd`` listens on all interfaces.
-sshd__listen: []
+ssh_server__listen: []
 
 # List of SSH host keys that should be enabled, in order of preference.
-sshd__host_keys: [ 'ed25519', 'rsa', 'ecdsa' ]
-
-# Path to file which should be displayed before user authentication.
-sshd__banner: 'none'
-#sshd__predefined_banner: 'pgis.issue.net'
+ssh_server__host_keys: [ 'ed25519', 'rsa', 'ecdsa' ]
 
 # How much information should be logged by ``sshd`` server.
-sshd__log_level: 'INFO'
+ssh_server__log_level: 'INFO'
 
 # With which faciity the SSHD will log
-sshd__log_facility: 'AUTH'
+ssh_server__log_facility: 'AUTH'
 
 # Specify if access to ``root`` account should be granted. By default ``root``
 # can be accessed only using SSH public keys.
-sshd__permit_root_login: 'no'
+ssh_server__permit_root_login: 'no'
 
 # Enable or disable password authentication.
-sshd__password_authentication: 'yes'
-sshd__keyboardinteractive_authentication: 'no'
+ssh_server__password_authentication: 'yes'
+ssh_server__keyboardinteractive_authentication: 'no'
 
 # Enable or disable Public Key authentication.
-sshd__pubkey_authentication: 'yes'
+ssh_server__pubkey_authentication: 'yes'
 
 # Enable or disable Kerberos authentication.
-sshd__kerberos_authentication: 'no'
+ssh_server__kerberos_authentication: 'no'
 
 # Enable or disable GSSAPI authentication.
-sshd__gssapi_authentication: 'no'
+ssh_server__gssapi_authentication: 'no'
 
 # Enable or disable X11 forwarding by the server.
-sshd__x11_forwarding: 'no'
+ssh_server__x11_forwarding: 'no'
 
 # Maximum number of failed authentication attempts allowed by the server.
-sshd__max_auth_tries: '4'
+ssh_server__max_auth_tries: '4'
 
 # Maximum number of unauthenticated connections (3), after which there's 80%
 # probability of next unauthenticated connection to be dropped, finishing at 7,
 # after which all new unauthenticated connections will be refused.
-sshd__max_startups: '3:80:7'
+ssh_server__max_startups: '3:80:7'
 
 # Time after which unauthenticated sessions are disconnected.
-sshd__login_grace_time: '20s'
+ssh_server__login_grace_time: '20s'
+
+# Path to file which should be displayed before user authentication.
+ssh_server__banner: 'none'
 
 # List of environments variable that the server will accept to load
-sshd__accept_env: [ 'LANG', 'LC_*' ]
+ssh_server__accept_env: [ 'LANG', 'LC_*' ]
 
 # Specify if ``sshd`` should use unprivileged processes for incoming session
 # authentication. Setting this to ``sandbox`` enables use of additional
 # kernel restrictions.
-sshd__privilege_separation: 'sandbox'
+ssh_server__privilege_separation: 'sandbox'
 
+ssh_server__authentication_methods: publickey,password
 
 
 # Encryption parameters
@@ -72,7 +87,7 @@ sshd__privilege_separation: 'sandbox'
 # Dict with list of ciphers which should be used by the ``sshd`` server,
 # depending on available version, ordered from strongest to weakest. Newer version
 # supersedes older version.
-sshd__ciphers_map:
+ssh_server__ciphers_map:
 
   # Source: https://wiki.mozilla.org/Security/Guidelines/OpenSSH
   '6.5': [ 'chacha20-poly1305@openssh.com', 'aes256-gcm@openssh.com',
@@ -87,14 +102,14 @@ sshd__ciphers_map:
 # ``sshd`` server, depending on available version, depending on available
 # version, ordered from stronger to weaker. Newer version supersedes older
 # version.
-sshd__ciphers_additional: []
+ssh_server__ciphers_additional: []
 
 
 
 # Dict with list of key exchange algorithms which should be used by the
 # ``sshd`` server, depending on available version, ordered from strongest to
 # oldest. Newer version supersedes older version.
-sshd__kex_algorithms_map:
+ssh_server__kex_algorithms_map:
 
   # Source : https://stribika.github.io/2015/01/04/secure-secure-shell.html
   '6.6': ['curve25519-sha256@libssh.org', 'diffie-hellman-group-exchange-sha256']
@@ -113,7 +128,7 @@ sshd__kex_algorithms_map:
 # ``sshd`` server, depending on available version, depending on available
 # version, ordered from stronger to weaker. Newer version supersedes older
 # version.
-sshd__kex_algorithms_additional: []
+ssh_server__kex_algorithms_additional: []
 
 
 
@@ -121,7 +136,7 @@ sshd__kex_algorithms_additional: []
 # Dict with list of message authentication code algorithms which should be used
 # by the ``sshd`` server, depending on available version, ordered from stronger
 # to weaker. Newer version supersedes older version.
-sshd__macs_map:
+ssh_server__macs_map:
 
   # Source : https://stribika.github.io/2015/01/04/secure-secure-shell.html
   '6.6': ['hmac-sha2-512-etm@openssh.com', 'hmac-sha2-256-etm@openssh.com',
@@ -143,16 +158,7 @@ sshd__macs_map:
 # List of additional message authentication code algorithms to support
 # by the ``sshd`` server, depending on available version, ordered from stronger
 # to weaker. Newer version supersedes older version.
-sshd__macs_additional: []
-
-
-
-#
-# Specify minimum size of Diffie-Hellman parameters available to the SSH
-# server. Parameters smaller than the given amount will be removed from the
-# :file:`/etc/ssh/moduli` file.
-sshd__moduli_minimum: '4096'
-
+ssh_server__macs_additional: []
 
 
 #
@@ -162,7 +168,7 @@ sshd__moduli_minimum: '4096'
 # ``sshd``. Use this with care as it will deny access to anyone not able to use
 # the first cryptographic method.
 # See https://github.com/debops/ansible-sshd/issues/20
-sshd__paranoid: False
+ssh_server__paranoid: False
 
 
 
@@ -172,8 +178,8 @@ sshd__paranoid: False
 
 
 # List of UNIX groups which allow connections to SSH service (global).
-sshd__allow_groups: [ 'ssh','sftponly', 'ssh-admins' ]
-
+ssh_server__allow_groups: []
+ssh_server__deny_groups: []
 
 
 # Authorized keys management
@@ -181,36 +187,35 @@ sshd__allow_groups: [ 'ssh','sftponly', 'ssh-admins' ]
 
 # List of files which contain SSH public keys, to be used to authenticate
 # remote users.
-sshd__authorized_keys: '{{ sshd__authorized_keys_system +
-                           sshd__authorized_keys_user }}'
+ssh_server__authorized_keys: '{{ sshd__authorized_keys_system|union(sshd__authorized_keys_user) }}'
+
 
 # List of system-wide files containing SSH public keys. These files are
 # expected to be maintained by system administrator and might be used in
 # restricted environments (for example SFTPonly accounts).
-sshd__authorized_keys_system:
+ssh_server__authorized_keys_system:
   - '/etc/ssh/authorized_keys/%u'
 
 
 # List of user files containing SSH public keys. These files are maintained by
 # the users themselves.
-sshd__authorized_keys_user:
+ssh_server__authorized_keys_user:
   - '%h/.ssh/authorized_keys'
-  - '%h/.ssh/authorized_keys2'
 
-  
+
 # Authorized key lookup configuration
 # ---------------------------------------
 
 
 # Enable support for looking up authorized public keys in external data sources
 # (currently LDAP is supported). This function works only with OpenSSH 6.2+.
-sshd__authorized_keys_lookup: False
+ssh_server__authorized_keys_lookup: False
 
 # System user account which will be used to look up authorized keys.
-sshd__authorized_keys_lookup_command: 'false'
+ssh_server__authorized_keys_lookup_command: 'false'
 
 # System user account which will be used to look up authorized keys.
-sshd__authorized_keys_lookup_user: 'nobody'
+ssh_server__authorized_keys_lookup_user: 'nobody'
 
 
 # Match conditional blocks
@@ -226,20 +231,21 @@ sshd__authorized_keys_lookup_user: 'nobody'
 #   active in a given Match block.
 #
 # This variable is intended to be used in Ansible’s global inventory.
-sshd__match_list_global: [ '{{ sshd__match_group_sftponly }}' ]
+ssh_server__match_list_global: []
 
 # This variable is intended to be used in Ansible’s group var file.
-sshd__match_list_group: []
+ssh_server__match_list_group: []
 
 # This variable is intended to be used in Ansible’s host var file.
-sshd__match_list_host: []
+ssh_server__match_list_host: []
 
 # # Combine all match lists
-sshd__match_list: '{{ sshd__match_list_host + sshd__match_list_global + sshd__match_list_group }}'
+ssh_server__match_list: '{{ ssh_server__match_list_host|union(ssh_server__match_list_group)|union(ssh_server__match_list_global) }}'
+
 
 # Default ``Match`` conditional block which defines configuration for SFTPonly
 # accounts.
-sshd__match_group_sftponly:
+ssh_server__match_group_sftponly:
   match: 'Group sftponly'
   options: |
     AuthorizedKeysFile {{ sshd__authorized_keys_system | join(' ') }}

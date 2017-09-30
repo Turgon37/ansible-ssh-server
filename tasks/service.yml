@@ -1,0 +1,7 @@
+---
+
+- name: Enable SSH daemon at boot
+  service:
+    name: '{{ ssh_server__service_name }}'
+    enabled: yes
+    state: started

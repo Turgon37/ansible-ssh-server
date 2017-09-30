@@ -1,14 +1,11 @@
 ---
-- name: Start openssh daemon
-  service: 
-    name: '{{ sshd__service_name }}'
-    state: started
+# handlers file for ssh-server
 
-- name: Test ssh daemon configuration and restart
+- name: test-and-restart-sshd
   command: sshd -t
-  notify: [ 'Restart sshd' ]
+  notify: [ 'restart-sshd' ]
 
-- name: Restart sshd
+- name: restart-sshd
   service:
-    name: '{{ sshd__service_name }}'
+    name: '{{ ssh_server__service_name }}'
     state: restarted

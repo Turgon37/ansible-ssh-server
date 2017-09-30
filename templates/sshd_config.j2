@@ -4,29 +4,6 @@
 
 ###############################################################################
 # SSH Daemon configuration file
-#
-# Copyright (c) 2013-2016
-# Written by P.GINDRAUD <pgindraud@gmail.com>
-#
-# Version 2.4 : P.GINDRAUD 2015-07-13T22-18-00+0200
-#   Set PrivilegesSeparation to sandbox
-# Version 2.3 : P.GINDRAUD 2015-07-12T23-34-00+0200
-#   Remove diffie-hellman-group-exchange-sha1 from KexAlgorithms
-# Version 2.2 : P.GINDRAUD 2015-06-24T01-37-00+0200
-#   Add new Option key
-#   Add Match pattern
-#   Fix a syntax error in AllowGroups usage
-# Version 2.1 : P.GINDRAUD 2015-05-10T15-16-00+0200
-#   For OpenSSH_6.7p1
-#   +fix KexAlgorithms,Ciphers,MACs options to apply new secure algorithm
-# Version 2.0 : P.GINDRAUD 2015-01-00T00-00-00+0200
-#   For OpenSSH_6.0p1
-#   +filter all ciphers algoritms to keep enabled only these which are secure
-#   +re build the moduli file with only key size greater than 4096 bits
-# Version 1.0 : P.GINDRAUD 2013-10-00T00-00-00+0200
-#   +first release
-#   +restrict connection to only ssh users group
-#
 ###############################################################################
 
 # See the sshd_config(5) manpage for details
@@ -46,70 +23,70 @@ Protocol 2
 # After successful authentication, another process will be created that has the privilege of the authenticated user.
 # If it is set to "sandbox" then the pre-authentication unprivileged process is subject to additional restrictions.
 # (Default: (bool) yes)
-UsePrivilegeSeparation {{ sshd__privilege_separation }}
+UsePrivilegeSeparation {{ ssh_server__privilege_separation }}
 
 # Specifies the available KEX (Key Exchange) algorithms. Multiple algorithms must be comma-separated.
 # (Default: (str) )
-{% set sshd__tpl_kex_algorithms = [] %}
-{% set sshd__tpl_kex_algorithms_match = False %}
-{% for key, value in sshd__kex_algorithms_map.iteritems() %}
-{%   if not sshd__tpl_kex_algorithms_match and
-      sshd__register_version.stdout|d() and
-      sshd__register_version.stdout | version_compare(key, '>=') %}
-{%   set sshd__tpl_kex_algorithms_match = True %}
+{% set ssh_server__tpl_kex_algorithms = [] %}
+{% set ssh_server__tpl_kex_algorithms_match = False %}
+{% for key, value in ssh_server__kex_algorithms_map.iteritems() %}
+{%   if not ssh_server__tpl_kex_algorithms_match and
+      _ssh_server__version.stdout|d() and
+      _ssh_server__version.stdout | version_compare(key, '>=') %}
+{%   set ssh_server__tpl_kex_algorithms_match = True %}
 {%     for element in value %}
-{%       set _ = sshd__tpl_kex_algorithms.append(element) %}
+{%       set _ = ssh_server__tpl_kex_algorithms.append(element) %}
 {%     endfor %}
 {%   endif %}
 {% endfor %}
-{% set sshd__tpl_kex_algorithms = (sshd__tpl_kex_algorithms + sshd__kex_algorithms_additional) | unique %}
-{% if sshd__tpl_kex_algorithms and sshd__paranoid|bool %}
-KexAlgorithms {{ ([ sshd__tpl_kex_algorithms|first ] + sshd__kex_algorithms_additional) | unique | join(",") }}
-{% elif sshd__tpl_kex_algorithms %}
-KexAlgorithms {{ sshd__tpl_kex_algorithms | join(",") }}
+{% set ssh_server__tpl_kex_algorithms = (ssh_server__tpl_kex_algorithms + ssh_server__kex_algorithms_additional) | unique %}
+{% if ssh_server__tpl_kex_algorithms and ssh_server__paranoid|bool %}
+KexAlgorithms {{ ([ ssh_server__tpl_kex_algorithms|first ] + ssh_server__kex_algorithms_additional) | unique | join(",") }}
+{% elif ssh_server__tpl_kex_algorithms %}
+KexAlgorithms {{ ssh_server__tpl_kex_algorithms | join(",") }}
 {% endif %}
 
 # Specifies the ciphers allowed for protocol version 2. Multiple ciphers must be comma-separated.
 # (Default: (str) )
-{% set sshd__tpl_ciphers = [] %}
-{% set sshd__tpl_ciphers_match = False %}
-{% for key, value in sshd__ciphers_map.iteritems() %}
-{%   if not sshd__tpl_ciphers_match and
-        sshd__register_version.stdout|d() and
-        sshd__register_version.stdout | version_compare(key, '>=') %}
-{%     set sshd__tpl_ciphers_match = True %}
+{% set ssh_server__tpl_ciphers = [] %}
+{% set ssh_server__tpl_ciphers_match = False %}
+{% for key, value in ssh_server__ciphers_map.iteritems() %}
+{%   if not ssh_server__tpl_ciphers_match and
+        _ssh_server__version.stdout|d() and
+        _ssh_server__version.stdout | version_compare(key, '>=') %}
+{%     set ssh_server__tpl_ciphers_match = True %}
 {%     for element in value %}
-{%       set _ = sshd__tpl_ciphers.append(element) %}
+{%       set _ = ssh_server__tpl_ciphers.append(element) %}
 {%     endfor %}
 {%   endif %}
 {% endfor %}
-{% set sshd__tpl_ciphers = (sshd__tpl_ciphers + sshd__ciphers_additional) | unique %}
-{% if sshd__tpl_ciphers and sshd__paranoid|bool %}
-Ciphers {{ ([ sshd__tpl_ciphers|first ] + sshd__ciphers_additional) | unique | join(",") }}
-{% elif sshd__tpl_ciphers %}
-Ciphers {{ sshd__tpl_ciphers | join(",") }}
+{% set ssh_server__tpl_ciphers = (ssh_server__tpl_ciphers + ssh_server__ciphers_additional) | unique %}
+{% if ssh_server__tpl_ciphers and ssh_server__paranoid|bool %}
+Ciphers {{ ([ ssh_server__tpl_ciphers|first ] + ssh_server__ciphers_additional) | unique | join(",") }}
+{% elif ssh_server__tpl_ciphers %}
+Ciphers {{ ssh_server__tpl_ciphers | join(",") }}
 {% endif %}
 
 # Specifies the available MAC (message authentication code) algorithms.
 # The MAC algorithm is used in protocol version 2 for data integrity protection.
 # (Default: (str) )
-{% set sshd__tpl_macs = [] %}
-{% set sshd__tpl_macs_match = False %}
-{% for key, value in sshd__macs_map.iteritems() %}
-{%   if not sshd__tpl_macs_match and
-        sshd__register_version.stdout|d() and
-        sshd__register_version.stdout | version_compare(key, '>=') %}
-{%     set sshd__tpl_macs_match = True %}
+{% set ssh_server__tpl_macs = [] %}
+{% set ssh_server__tpl_macs_match = False %}
+{% for key, value in ssh_server__macs_map.iteritems() %}
+{%   if not ssh_server__tpl_macs_match and
+        _ssh_server__version.stdout|d() and
+        _ssh_server__version.stdout | version_compare(key, '>=') %}
+{%     set ssh_server__tpl_macs_match = True %}
 {%     for element in value %}
-{%       set _ = sshd__tpl_macs.append(element) %}
+{%       set _ = ssh_server__tpl_macs.append(element) %}
 {%     endfor %}
 {%   endif %}
 {% endfor %}
-{% set sshd__tpl_macs = (sshd__tpl_macs + sshd__macs_additional) | unique %}
-{% if sshd__tpl_macs and sshd__paranoid|bool %}
-MACs {{ ([ sshd__tpl_macs|first ] + sshd__macs_additional) | unique | join(",") }}
-{% elif sshd__tpl_macs %}
-MACs {{ sshd__tpl_macs | join(",") }}
+{% set ssh_server__tpl_macs = (ssh_server__tpl_macs + ssh_server__macs_additional) | unique %}
+{% if ssh_server__tpl_macs and ssh_server__paranoid|bool %}
+MACs {{ ([ ssh_server__tpl_macs|first ] + ssh_server__macs_additional) | unique | join(",") }}
+{% elif ssh_server__tpl_macs %}
+MACs {{ ssh_server__tpl_macs | join(",") }}
 {% endif %}
 
 # If compression is allowed, or delayed until the user has authenticated successfully.
@@ -123,7 +100,7 @@ Compression	yes
 # Specifies the port number that sshd(8) listens on.
 # Multiple options of this type are permitted.
 # (Default: (int) 22)
-{% for port in sshd__ports %}
+{% for port in ssh_server__ports %}
 Port {{ port }}
 {% endfor %}
 
@@ -132,7 +109,7 @@ Port {{ port }}
 # (Default: (str) "any")
 AddressFamily "inet"
 
-{% if sshd__listen|d() %}
+{% if ssh_server__listen|d() %}
 # Specifies the local addresses sshd(8) should listen on.  The following forms may be used:
 #   ListenAddress host|IPv4_addr|IPv6_addr
 #   ListenAddress host|IPv4_addr:port
@@ -141,7 +118,7 @@ AddressFamily "inet"
 # The default is to listen on all local addresses. Multiple ListenAddress options are permitted.
 #ListenAddress ::
 #ListenAddress 0.0.0.0
-{%   for address in sshd__listen %}
+{%   for address in ssh_server__listen %}
 ListenAddress {{ address }}
 {%   endfor %}
 {% endif %}
@@ -160,7 +137,7 @@ AllowAgentForwarding no
 # (Default: (bool) yes)
 AllowTcpForwarding no
 
-{% if sshd__register_version.stdout|float >= 6.7  %}
+{% if _ssh_server__version.stdout|float >= 6.7  %}
 # Specifies whether StreamLocal (Unix-domain socket) forwarding is permitted
 # Values 'yes'/'all' to allow, 'no' to prevent, 'local' to allow only local, 'remote' to allow only remote
 # (Default: (bool) yes)
@@ -217,15 +194,17 @@ IPQoS "lowdelay" "throughput"
 #DenyUsers
 # If specified, login is allowed only for user names that match one of the patterns. 
 #AllowUsers
+{% endif %}
 
+{% if ssh_server__deny_groups|d([])|length %}
 # Only group names are valid; a numerical group ID is not recognized.
 # This keyword can be followed by a list of group name patterns, separated by spaces.
 # Login is disallowed for users whose primary group or supplementary group list matches one of the patterns.
 #DenyGroups
 {% endif %}
-{% if sshd__allow_groups|d() %}
+{% if ssh_server__allow_groups|d([])|length %}
 # If specified, login is allowed only for users whose primary group or supplementary group list matches one of the patterns.
-AllowGroups {{ (sshd__allow_groups|d([]) | list) | unique | join(" ") }}
+AllowGroups {{ (ssh_server__allow_groups|d([]) | list) | unique | join(" ") }}
 {% endif %}
 
 # Specifies whether root can log in using ssh.
@@ -234,18 +213,20 @@ AllowGroups {{ (sshd__allow_groups|d([]) | list) | unique | join(" ") }}
 #   -"forced-commands-only", root login with public key authentication will be allowed, but only if the command option has been specified.
 #   -"no", root is not allowed to log in.
 # (Default: (bool) yes)
-PermitRootLogin {{ sshd__permit_root_login }}
+PermitRootLogin {{ ssh_server__permit_root_login }}
 
 
 
 ### AUTHENTIFICATION MODE
 # Specifies the authentication methods that must be successfully
-#AuthenticationMethods publickey,password
+{% if ssh_server__authentication_methods is defined %}
+AuthenticationMethods {{ ssh_server__authentication_methods }}
+{% endif %}
 
 ## Password authentication
 # If password authentication is allowed.
 # (Default: (bool) yes)
-PasswordAuthentication {{ sshd__password_authentication if sshd__password_authentication is string else sshd__password_authentication | bool | ternary('yes', 'no')}}
+PasswordAuthentication {{ ssh_server__password_authentication if ssh_server__password_authentication is string else ssh_server__password_authentication | bool | ternary('yes', 'no')}}
 
 # When password authentication is allowed, it specifies whether the server allows login to accounts with empty password strings.
 # (Default: (bool) no)
@@ -267,12 +248,12 @@ ChallengeResponseAuthentication no
 UseLogin no
 
 ## Keyboard Interactive authentifiaction
-KbdInteractiveAuthentication {{ sshd__keyboardinteractive_authentication if sshd__keyboardinteractive_authentication is string else sshd__keyboardinteractive_authentication | bool | ternary('yes', 'no')}}
+KbdInteractiveAuthentication {{ ssh_server__keyboardinteractive_authentication if ssh_server__keyboardinteractive_authentication is string else ssh_server__keyboardinteractive_authentication | bool | ternary('yes', 'no')}}
 
 ## PubKey authentication
 # If public key authentication is allowed. (Protocol 2)
 # (Default: (bool) yes)
-PubkeyAuthentication {{ sshd__pubkey_authentication if sshd__pubkey_authentication is string else sshd__pubkey_authentication | bool | ternary('yes', 'no')}}
+PubkeyAuthentication {{ ssh_server__pubkey_authentication if ssh_server__pubkey_authentication is string else ssh_server__pubkey_authentication | bool | ternary('yes', 'no')}}
 
 # Specifies a file that lists principal names that are accepted for certificate authentication.
 # When using certificates signed by a key listed in TrustedUserCAKeys, this file lists names, 
@@ -318,19 +299,19 @@ PubkeyAuthentication {{ sshd__pubkey_authentication if sshd__pubkey_authenticati
 #   - %u is replaced by the username of that user.
 # Multiple files may be listed, separated by whitespace.
 # (Default: (str) ".ssh/authorized_keys .ssh/authorized_keys2")
-AuthorizedKeysFile {{ sshd__authorized_keys if sshd__authorized_keys is string else sshd__authorized_keys | join(" ") }}
+AuthorizedKeysFile {{ ssh_server__authorized_keys if ssh_server__authorized_keys is string else ssh_server__authorized_keys | join(" ") }}
 
-{% if sshd__authorized_keys_lookup|bool and
-      sshd__register_version.stdout|d() and
-      sshd__register_version.stdout | version_compare('6.2', '>=') %}
+{% if ssh_server__authorized_keys_lookup|bool and
+      _ssh_server__version.stdout|d() and
+      _ssh_server__version.stdout | version_compare('6.2', '>=') %}
 # Specifies a program to be used to look up the user's public keys.
 # The program must be owned by root and not writable
 # by group or others.  It will be invoked with a single argument of the username being authenticated,
 # and should produce on standard output zero or more lines of authorized_keys output
-AuthorizedKeysCommand {{ sshd__authorized_keys_lookup_command }}
+AuthorizedKeysCommand {{ ssh_server__authorized_keys_lookup_command }}
 
 # Specifies the user under whose account the AuthorizedKeysCommand is run.
-AuthorizedKeysCommandUser {{ sshd__authorized_keys_lookup_user }}
+AuthorizedKeysCommandUser {{ ssh_server__authorized_keys_lookup_user }}
 {% endif %}
 
 # HostKeys for protocol version 2
@@ -345,8 +326,8 @@ AuthorizedKeysCommandUser {{ sshd__authorized_keys_lookup_user }}
 #     - /etc/ssh/ssh_host_rsa_key
 #     - /etc/ssh/ssh_host_ed25519_key
 # HostKeys for protocol version 2
-{% for hostkey in sshd__host_keys %}
-{%   if ('ssh_host_' + hostkey + '_key') in sshd__register_host_keys.stdout_lines %}
+{% for hostkey in ssh_server__host_keys %}
+{%   if ('ssh_host_' + hostkey + '_key') in _ssh_server__host_keys.stdout_lines %}
 HostKey /etc/ssh/ssh_host_{{ hostkey }}_key
 {%   endif %}
 {% endfor %}
@@ -397,9 +378,9 @@ RhostsRSAAuthentication no
 ## Kerberos options
 # If password provided by the user for PasswordAuthentication will be validated through the Kerberos KDC.
 # (Default: (bool) no)
-KerberosAuthentication {{ sshd__kerberos_authentication if sshd__kerberos_authentication is string else sshd__kerberos_authentication | bool | ternary('yes', 'no')}}
+KerberosAuthentication {{ ssh_server__kerberos_authentication if ssh_server__kerberos_authentication is string else ssh_server__kerberos_authentication | bool | ternary('yes', 'no')}}
 
-{% if sshd__kerberos_authentication | bool %}
+{% if ssh_server__kerberos_authentication | bool %}
 # If AFS is active and the user has a Kerberos 5 TGT, attempt to acquire an AFS token before accessing the user's home directory.
 # (Default: (bool) no)
 #KerberosGetAFSToken no
@@ -420,9 +401,9 @@ KerberosUseKuserok yes
 ## GSSAPI options
 # If user authentication based on GSSAPI is allowed. (Protocol 2)
 # (Default: (bool) no)
-GSSAPIAuthentication {{ sshd__gssapi_authentication if sshd__gssapi_authentication is string else sshd__gssapi_authentication | bool | ternary('yes', 'no')}}
+GSSAPIAuthentication {{ ssh_server__gssapi_authentication if ssh_server__gssapi_authentication is string else ssh_server__gssapi_authentication | bool | ternary('yes', 'no')}}
 
-{% if sshd__gssapi_authentication | bool %}
+{% if ssh_server__gssapi_authentication | bool %}
 # If key exchange based on GSSAPI is allowed. GSSAPI key exchange doesn't rely on ssh keys to verify host identity. (Protocol 2)
 # (Default: (bool) no)
 #GSSAPIKeyExchange no
@@ -447,11 +428,11 @@ GSSAPIAuthentication {{ sshd__gssapi_authentication if sshd__gssapi_authenticati
 ## Login spec
 # The server disconnects after this time if the user has not successfully logged in. If 0, there is no time limit.
 # (Default: (int) 120)
-LoginGraceTime {{ sshd__login_grace_time }}
+LoginGraceTime {{ ssh_server__login_grace_time }}
 
 # Specifies the maximum number of authentication attempts permitted per connection.
 # (Default: (int) 6) 
-MaxAuthTries {{ sshd__max_auth_tries }}
+MaxAuthTries {{ ssh_server__max_auth_tries }}
 
 # Specifies the maximum number of open sessions permitted per network connection.
 # (Default: (int) 10)
@@ -461,20 +442,20 @@ MaxSessions 5
 # The probability increases linearly and all connection attempts are refused if the number of unauthenticated connections reaches “full” (Default : 60).
 # Values “start:rate:full”. 
 # (Default: (str) "10:30:100")
-MaxStartups  {{ sshd__max_startups }}
+MaxStartups  {{ ssh_server__max_startups }}
 
 # What environment variables sent by the client will be copied into the session's environ.
 # Variables are specified by name, which may contain the wildcard characters ‘*’ and ‘?’.
 # Multiple environment variables may be separated by whitespace or spread across multiple AcceptEnv directives.
 # (Default: (str) "")
-AcceptEnv {{ (sshd__accept_env | d([]) | list) | unique | join(" ") }}
+AcceptEnv {{ (ssh_server__accept_env | d([]) | list) | unique | join(" ") }}
 
 # If ~/.ssh/environment and environment= options in ~/.ssh/authorized_keys are processed by sshd.
 # Enabling environment processing may enable users to bypass access restrictions in some configurations using mechanisms such as LD_PRELOAD.
 # (Default: (bool) no)
 PermitUserEnvironment no
 
-{% if sshd__register_version.stdout|float >= 6.7  %}
+{% if _ssh_server__version.stdout|float >= 6.7  %}
 # Specifies whether any ~/.ssh/rc file is executed
 # (Default: (bool) yes)
 PermitUserRC no
@@ -493,7 +474,7 @@ StrictModes yes
 ## Greeting options
 # The contents of the specified file are sent to the remote user before authentication is allowed. 
 # (Default: (str) "none")
-Banner {{ sshd__banner }}
+Banner {{ ssh_server__banner }}
 
 {% if ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu' %}
 # Specifies whether the distribution-specified extra version suffix is included during initial protocol handshake.
@@ -549,7 +530,7 @@ TCPKeepAlive no
 ### X11 FORWARDING
 # If X11 forwarding is permitted.
 # (Default: (bool) no)
-X11Forwarding {{ sshd__x11_forwarding }}
+X11Forwarding {{ ssh_server__x11_forwarding }}
 
 # The first display number available for X11 forwarding.
 # (Default: (int) 10)
@@ -571,15 +552,13 @@ X11UseLocalhost yes
 ### LOGGING
 # The facility code that is used when logging messages from sshd.
 # Values: "DAEMON", "USER", "AUTH", "LOCAL0", "LOCAL1", "LOCAL2", "LOCAL3", "LOCAL4", "LOCAL5", "LOCAL6", "LOCAL7".
-# (default: (str) "AUTH")
-SyslogFacility {{ sshd__log_facility }}
+SyslogFacility {{ ssh_server__log_facility }}
 
 # The verbosity level that is used when logging messages. 
 # Values: "QUIET", "FATAL", "ERROR", "INFO", "VERBOSE", "DEBUG", "DEBUG1", "DEBUG2", and "DEBUG3".
 # DEBUG and DEBUG1 are equivalent. DEBUG2 and DEBUG3 each specify higher levels of debugging output.
 # Logging with a DEBUG level violates the privacy of users and is not recommended.
-# (Default: (str) "INFO")
-LogLevel {{ sshd__log_level }}
+LogLevel {{ ssh_server__log_level }}
 
 
 
@@ -620,10 +599,16 @@ Subsystem sftp internal-sftp
 #   HostbasedUsesNameFromPacketOnly, KbdInteractiveAuthentication, KerberosAuthentication, MaxAuthTries, MaxSessions,
 #   PasswordAuthentication, PermitEmptyPasswords, PermitOpen, PermitRootLogin, PermitTTY, PermitTunnel, PermitUserRC,
 #   PubkeyAuthentication, RekeyLimit, RhostsRSAAuthentication, RSAAuthentication, X11DisplayOffset, X11Forwarding and X11UseLocalHost.
-{% for entry in sshd__match_list|d([]) %}
-{%   if entry.match|d() and entry.options|d() %}
+{% for entry in ssh_server__match_list|d([]) %}
+{%   if entry.match is defined and entry.options is defined %}
 Match {{ entry.match }}
+{%     if entry.options is string %}
 {{ entry.options | indent(2, true) }}
+{%     else %}
+{%       for opt in entry.options %}
+{{ opt | indent(2, true) }}
+{%       endfor %}
+{%     endif %}
 {%   endif %}
 {% endfor %}
 
