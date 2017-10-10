@@ -20,3 +20,6 @@
 
 - import_tasks: service.yml
   tags: ['ssh-server', 'ssh-server-service']
+
+- import_tasks: facts.yml
+  when: ssh_server__facts

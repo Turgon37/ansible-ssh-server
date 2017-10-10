@@ -9,20 +9,14 @@
 # See the sshd_config(5) manpage for details
 
 ### GENERAL SECTION
-# The file that contains the process ID of the SSH daemon.
-# (Default: (str) "/var/run/sshd.pid"
 #PidFile "/var/run/sshd.pid"
 
 # Specifies the protocol versions sshd(8) supports.
-# Multiple versions must be comma-separated. 
-# Values: "1" and "2".
-# (Default: (int) 2)
 Protocol 2
 
 # If sshd(8) separates privileges by creating an unprivileged child process to deal with incoming network traffic.
 # After successful authentication, another process will be created that has the privilege of the authenticated user.
 # If it is set to "sandbox" then the pre-authentication unprivileged process is subject to additional restrictions.
-# (Default: (bool) yes)
 UsePrivilegeSeparation {{ ssh_server__privilege_separation }}
 
 # Specifies the available KEX (Key Exchange) algorithms. Multiple algorithms must be comma-separated.
@@ -97,9 +91,6 @@ Compression	yes
 
 
 ### NETWORK SECTION
-# Specifies the port number that sshd(8) listens on.
-# Multiple options of this type are permitted.
-# (Default: (int) 22)
 {% for port in ssh_server__ports %}
 Port {{ port }}
 {% endfor %}
@@ -140,7 +131,6 @@ AllowTcpForwarding no
 {% if _ssh_server__version.stdout|float >= 6.7  %}
 # Specifies whether StreamLocal (Unix-domain socket) forwarding is permitted
 # Values 'yes'/'all' to allow, 'no' to prevent, 'local' to allow only local, 'remote' to allow only remote
-# (Default: (bool) yes)
 AllowStreamLocalForwarding no
 {% endif %}
 

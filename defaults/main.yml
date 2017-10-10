@@ -3,6 +3,8 @@
 
 # Simple placeholder to allow other roles to detect this role
 ssh_server__role: True
+# Enable facts deploiement
+ssh_server__facts: True
 
 ssh_server_config_dir: /etc/ssh
 
