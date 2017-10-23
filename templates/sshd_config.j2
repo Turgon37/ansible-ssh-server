@@ -216,7 +216,7 @@ AuthenticationMethods {{ ssh_server__authentication_methods }}
 ## Password authentication
 # If password authentication is allowed.
 # (Default: (bool) yes)
-PasswordAuthentication {{ ssh_server__password_authentication if ssh_server__password_authentication is string else ssh_server__password_authentication | bool | ternary('yes', 'no')}}
+PasswordAuthentication {{ ssh_server__password_authentication|d(true)|bool|ternary('yes', 'no') }}
 
 # When password authentication is allowed, it specifies whether the server allows login to accounts with empty password strings.
 # (Default: (bool) no)
@@ -238,12 +238,12 @@ ChallengeResponseAuthentication no
 UseLogin no
 
 ## Keyboard Interactive authentifiaction
-KbdInteractiveAuthentication {{ ssh_server__keyboardinteractive_authentication if ssh_server__keyboardinteractive_authentication is string else ssh_server__keyboardinteractive_authentication | bool | ternary('yes', 'no')}}
+KbdInteractiveAuthentication {{ ssh_server__keyboardinteractive_authentication|d(false)|bool|ternary('yes', 'no') }}
 
 ## PubKey authentication
 # If public key authentication is allowed. (Protocol 2)
 # (Default: (bool) yes)
-PubkeyAuthentication {{ ssh_server__pubkey_authentication if ssh_server__pubkey_authentication is string else ssh_server__pubkey_authentication | bool | ternary('yes', 'no')}}
+PubkeyAuthentication {{ ssh_server__pubkey_authentication|d(true)|bool|ternary('yes', 'no') }}
 
 # Specifies a file that lists principal names that are accepted for certificate authentication.
 # When using certificates signed by a key listed in TrustedUserCAKeys, this file lists names, 
@@ -289,7 +289,7 @@ PubkeyAuthentication {{ ssh_server__pubkey_authentication if ssh_server__pubkey_
 #   - %u is replaced by the username of that user.
 # Multiple files may be listed, separated by whitespace.
 # (Default: (str) ".ssh/authorized_keys .ssh/authorized_keys2")
-AuthorizedKeysFile {{ ssh_server__authorized_keys if ssh_server__authorized_keys is string else ssh_server__authorized_keys | join(" ") }}
+AuthorizedKeysFile {{ ssh_server__authorized_keys if ssh_server__authorized_keys is string else ssh_server__authorized_keys|join(' ') }}
 
 {% if ssh_server__authorized_keys_lookup|bool and
       _ssh_server__version.stdout|d() and
@@ -368,9 +368,9 @@ RhostsRSAAuthentication no
 ## Kerberos options
 # If password provided by the user for PasswordAuthentication will be validated through the Kerberos KDC.
 # (Default: (bool) no)
-KerberosAuthentication {{ ssh_server__kerberos_authentication if ssh_server__kerberos_authentication is string else ssh_server__kerberos_authentication | bool | ternary('yes', 'no')}}
+KerberosAuthentication {{ ssh_server__kerberos_authentication|d(false)|bool|ternary('yes', 'no') }}
 
-{% if ssh_server__kerberos_authentication | bool %}
+{% if ssh_server__kerberos_authentication|bool %}
 # If AFS is active and the user has a Kerberos 5 TGT, attempt to acquire an AFS token before accessing the user's home directory.
 # (Default: (bool) no)
 #KerberosGetAFSToken no
