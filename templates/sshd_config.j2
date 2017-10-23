@@ -391,7 +391,7 @@ KerberosUseKuserok yes
 ## GSSAPI options
 # If user authentication based on GSSAPI is allowed. (Protocol 2)
 # (Default: (bool) no)
-GSSAPIAuthentication {{ ssh_server__gssapi_authentication if ssh_server__gssapi_authentication is string else ssh_server__gssapi_authentication | bool | ternary('yes', 'no')}}
+GSSAPIAuthentication {{ ssh_server__gssapi_authentication|d(false)|bool|ternary('yes', 'no') }}
 
 {% if ssh_server__gssapi_authentication | bool %}
 # If key exchange based on GSSAPI is allowed. GSSAPI key exchange doesn't rely on ssh keys to verify host identity. (Protocol 2)
@@ -400,7 +400,7 @@ GSSAPIAuthentication {{ ssh_server__gssapi_authentication if ssh_server__gssapi_
 
 # If to automatically destroy the user's credentials cache on logout. (Protocol 2)
 # (Default:(bool) yes)
-#GSSAPICleanupCredentials yes
+GSSAPICleanupCredentials {{ ssh_server__gssapi_cleanup_credentials|d(true)|bool|ternary('yes', 'no') }}
 
 # Determines whether to be strict about the identity of the GSSAPI acceptor a client authenticates against.
 # If "yes" then the client must authenticate against the host service on the current hostname.
