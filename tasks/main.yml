@@ -22,4 +22,4 @@
   tags: ['ssh-server', 'ssh-server-service']
 
 - include_tasks: facts.yml
-  when: ssh_server__facts
+  when: ssh_server__facts|bool
