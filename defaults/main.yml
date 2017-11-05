@@ -21,6 +21,21 @@ ssh_server__moduli_minimum: '4096'
 # SSHD settings
 # ---------------------------------------
 
+### GENERAL SECTION
+# ---------------------------------------
+# Specifies the protocol versions sshd(8) supports.
+ssh_server__protocol: 2
+
+# If sshd(8) separates privileges by creating an unprivileged child process to deal with incoming network traffic.
+# After successful authentication, another process will be created that has the privilege of the authenticated user.
+# If it is set to "sandbox" then the pre-authentication unprivileged process is subject to additional restrictions.
+ssh_server__privilege_separation: True
+
+# Specifies the file that contains the process ID of the SSH daemon.
+ssh_server__pidfile: /var/run/sshd.pid
+
+
+
 ### NETWORK SECTION
 # ---------------------------------------
 # List of ports which ``sshd`` will listen on.
@@ -192,6 +207,13 @@ ssh_server__macs_map:
 # to weaker. Newer version supersedes older version.
 ssh_server__macs_additional: []
 
+# Defines the number of bits in the ephemeral server key.
+ssh_server__server_key_bits: 2048
+
+# Number of seconds before ephemeral server key regenerating.
+# If the value is 0, the key is never regenerated.
+ssh_server__key_regeneration_interval: 3600
+
 
 
 ### AUTHENTIFICATION MODE
@@ -261,6 +283,38 @@ ssh_server__authorized_keys_user:
 
 # Specifies the user under whose account the AuthorizedKeysCommand is run.
 ssh_server__authorized_keys_command_user: 'nobody'
+
+# Specifies a file that lists principal names that are accepted for certificate authentication.
+# When using certificates signed by a key listed in TrustedUserCAKeys, this file lists names,
+# one of which must appear in the certificate for it to be accepted for authentication.
+# Names are listed one per line preceded by key options (as described in AUTHORIZED_KEYS FILE FORMAT in sshd(8)).
+# Empty lines and comments starting with ‘#’ are ignored.
+# The following tokens are defined:
+#   - %% is replaced by a literal '%'
+#   - %h is replaced by the home directory of the user being authenticated
+#   - %u is replaced by the username of that user.
+# After expansion, AuthorizedPrincipalsFile is taken to be an absolute path or one relative to the user's home directory.
+# In case of no file specified, the username of the user must appear in a certificate's principals list for it to be accepted.
+# Note that AuthorizedPrincipalsFile is only used when authentication proceeds using a CA listed in TrustedUserCAKeys and is not
+# consulted for certification authorities trusted via ~/.ssh/authorized_keys, though the principals= key option offers a similar facility.
+ssh_server__authorized_principals_file: none
+
+# Specifies a file containing public keys of certificate authorities that are trusted to sign user certificates for authentication.
+# Keys are listed one per line; empty lines and comments starting with ‘#’ are allowed.
+# If a certificate is presented for authentication and has its signing CA key listed in this file, then it may be used for authen‐
+# tication for any user listed in the certificate's principals list.
+# Note that certificates that lack a list of principals will not be permitted for authentication using TrustedUserCAKeys.
+ssh_server__trusted_user_ca_keys: none
+
+# Specifies a list of revoked public keys.  Keys listed in this file will be refused for public key authentication.
+# Note that if this file is not readable, then public key authentication will be refused for all users.
+ssh_server__revoked_keys: none
+
+# If sshd should allow keys recorded in its blacklist of known-compromised keys.
+# If “yes", authentication with compromised keys will be logged but accepted.
+# If “no",  authentication with compromised keys will be rejected.
+ssh_server__permit_blacklisted_keys: False
+
 
 # Protocol 1
 # If pure RSA authentication is allowed.
@@ -377,10 +431,7 @@ ssh_server__print_last_log: 'yes'
 # List of environments variable that the server will accept to load
 ssh_server__accept_env: [ 'LANG', 'LC_*' ]
 
-# Specify if ``sshd`` should use unprivileged processes for incoming session
-# authentication. Setting this to ``sandbox`` enables use of additional
-# kernel restrictions.
-ssh_server__privilege_separation: 'sandbox'
+
 
 
 

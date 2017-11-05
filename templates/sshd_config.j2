@@ -8,15 +8,11 @@
 ###############################################################################
 
 ### GENERAL SECTION
-#PidFile "/var/run/sshd.pid"
-
-# Specifies the protocol versions sshd(8) supports.
-Protocol 2
-
-# If sshd(8) separates privileges by creating an unprivileged child process to deal with incoming network traffic.
-# After successful authentication, another process will be created that has the privilege of the authenticated user.
-# If it is set to "sandbox" then the pre-authentication unprivileged process is subject to additional restrictions.
-UsePrivilegeSeparation {{ ssh_server__privilege_separation }}
+{% if ssh_server__pidfile is defined %}
+PidFile "{{ ssh_server__pidfile }}"
+{% endif %}
+Protocol {{ ssh_server__protocol }}
+UsePrivilegeSeparation {{ macros.stringOrBool(ssh_server__privilege_separation) }}
 
 
 
@@ -97,6 +93,12 @@ Ciphers {{ _ssh_server__tpl_ciphers|join(",") }}
 MACs {{ _ssh_server__tpl_macs|join(",") }}
 {% endif %}
 
+{% if _ssh_server__version|version_compare(7.4, '<') %}
+## Protocol 1
+ServerKeyBits {{ ssh_server__server_key_bits|int }}
+KeyRegenerationInterval {{ ssh_server__key_regeneration_interval|int }}
+{% endif %}
+
 
 
 ### AUTHENTIFICATION MODE
@@ -123,9 +125,13 @@ AuthorizedKeysFile {{ ssh_server__authorized_keys if ssh_server__authorized_keys
 {% if ssh_server__authorized_keys_command is defined and _ssh_server__version|version_compare(6.2, '>=') %}
 AuthorizedKeysCommand {{ ssh_server__authorized_keys_command }}
 AuthorizedKeysCommandUser {{ ssh_server__authorized_keys_command_user }}
+AuthorizedPrincipalsFile "{{ ssh_server__authorized_principals_file }}"
+TrustedUserCAKeys "{{ ssh_server__trusted_user_ca_keys }}"
+RevokedKeys "{{ ssh_server__revoked_keys }}"
+PermitBlacklistedKeys {{ macros.bool(ssh_server__permit_blacklisted_keys) }}
 {% endif %}
 
-{% if _ssh_server__version|version_compare(7.4, '>=') %}
+{% if _ssh_server__version|version_compare(7.4, '<') %}
 # Protocol 1
 RSAAuthentication {{ macros.bool(ssh_server__rsa_authentication) }}
 RhostsRSAAuthentication {{ macros.bool(ssh_server__rhosts_rsa_authentication) }}
@@ -164,38 +170,7 @@ GSSAPIEnablek5users {{ macros.bool(ssh_server__gssapi_enable_k5_users) }}
 
 
 
-# Specifies a file that lists principal names that are accepted for certificate authentication.
-# When using certificates signed by a key listed in TrustedUserCAKeys, this file lists names,
-# one of which must appear in the certificate for it to be accepted for authentication.
-# Names are listed one per line preceded by key options (as described in AUTHORIZED_KEYS FILE FORMAT in sshd(8)).
-# Empty lines and comments starting with ‘#’ are ignored.
-# The following tokens are defined:
-#   - %% is replaced by a literal '%'
-#   - %h is replaced by the home directory of the user being authenticated
-#   - %u is replaced by the username of that user.
-# After expansion, AuthorizedPrincipalsFile is taken to be an absolute path or one relative to the user's home directory.
-# In case of no file specified, the username of the user must appear in a certificate's principals list for it to be accepted.
-# Note that AuthorizedPrincipalsFile is only used when authentication proceeds using a CA listed in TrustedUserCAKeys and is not
-# consulted for certification authorities trusted via ~/.ssh/authorized_keys, though the principals= key option offers a similar facility.
-# (Default: (str) "")
-#AuthorizedPrincipalsFile ""
 
-# Specifies a file containing public keys of certificate authorities that are trusted to sign user certificates for authentication.
-# Keys are listed one per line; empty lines and comments starting with ‘#’ are allowed.
-# If a certificate is presented for authentication and has its signing CA key listed in this file, then it may be used for authen‐
-# tication for any user listed in the certificate's principals list.
-# Note that certificates that lack a list of principals will not be permitted for authentication using TrustedUserCAKeys.
-#TrustedUserCAKeys "/etc/ssh/CA/ca.pub"
-
-# Specifies a list of revoked public keys.  Keys listed in this file will be refused for public key authentication.
-# Note that if this file is not readable, then public key authentication will be refused for all users.
-#RevokedKeys "/etc/ssh/CRL/revoked_keys"
-
-# If sshd should allow keys recorded in its blacklist of known-compromised keys.
-# If “yes", authentication with compromised keys will be logged but accepted.
-# If “no",  authentication with compromised keys will be rejected.
-# (Default: (bool) no)
-#PermitBlacklistedKeys no
 
 # Specifies a file containing a public host certificate.
 # The certificate's public key must match a private host key already specified by HostKey.
@@ -225,17 +200,7 @@ HostKey /etc/ssh/ssh_host_{{ hostkey }}_key
 
 
 
-{% if _ssh_server__version|version_compare(7.4, '>=') %}
-## Protocol 1
-# Defines the number of bits in the ephemeral server key.
-# (Default: (int) 1024)
-#ServerKeyBits 512
 
-# Number of seconds before ephemeral server key regenerating.
-# If the value is 0, the key is never regenerated.
-# (Default: (int) 3600)
-#KeyRegenerationInterval 3600
-{% endif %}
 
 
 
