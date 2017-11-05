@@ -3,9 +3,10 @@
 - name: Find installed host keys
   find:
     paths:     '{{ ssh_server_config_dir }}'
-    patterns:  '{{ ssh_server__host_keys_file_prefix }}*{{ ssh_server__host_keys_file_suffix }}'
+    patterns:  '{{ ssh_server__host_keys_file_prefix }}.*{{ ssh_server__host_keys_file_suffix }}(.pub)?$'
     file_type: file
     recurse:   no
+    use_regex: yes
   register: _ssh_server__installed_host_keys
   check_mode: no
 
