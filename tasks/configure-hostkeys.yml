@@ -3,7 +3,7 @@
 - name: Find installed host keys
   find:
     paths:     '{{ ssh_server_config_dir }}'
-    patterns:  '{{ ssh_server__host_keys_file_prefix }}*{{ ssh_server__host_keys_file_suffix }}.pub'
+    patterns:  '{{ ssh_server__host_keys_file_prefix }}*{{ ssh_server__host_keys_file_suffix }}'
     file_type: file
     recurse:   no
   register: _ssh_server__installed_host_keys
@@ -18,18 +18,24 @@
 - name: Remove unwanted host keys
   file:
     path:  '{{ item }}'
-    #state: absent
+    state: absent
   with_items: "{{ _ssh_server__installed_host_keys.files|map(attribute='path')|list }}"
-  when: item|basename|replace(ssh_server__host_keys_file_prefix, '')|replace(ssh_server__host_keys_file_suffix~'.pub', '') not in ssh_server__host_keys_types
+  when: item|basename|regex_replace('^'~ssh_server__host_keys_file_prefix~'(.*)'~ssh_server__host_keys_file_suffix~'(\\.pub)?', '\\1') not in ssh_server__host_keys_types
+  notify: [ 'test-and-restart-sshd' ]
 
 - name: Ensure wanted host keys are present
-  command: 'ssh-keygen -q -t {{ item }} -N "" -f {{ ssh_server_config_dir }}/{{ ssh_server__host_keys_file_prefix }}ed25519{{ ssh_server__host_keys_file_suffix }}'
+  command: >
+    ssh-keygen -q {% if item in ssh_server__host_keys_types_bits_map %} -b {{ ssh_server__host_keys_types_bits_map[item] }} {% endif %}
+    -t {{ item }}
+    -N ""
+    -f {{ ssh_server_config_dir }}/{{ ssh_server__host_keys_file_prefix }}{{item }}{{ ssh_server__host_keys_file_suffix }}
   args:
     creates: '{{ ssh_server_config_dir }}/{{ ssh_server__host_keys_file_prefix }}{{ item }}{{ ssh_server__host_keys_file_suffix }}'
   with_items: '{{ ssh_server__host_keys_types }}'
   register: _ssh_server__created_host_keys
+  notify: [ 'test-and-restart-sshd' ]
 
-- name: Select appropriate host key map entry
+- name: Fill host keys list for sshd
   set_fact:
     ssh_server__host_keys: '{{ ssh_server__host_keys|d([])|union([item.invocation.module_args.creates]) }}'
   with_items: '{{ _ssh_server__created_host_keys.results }}'

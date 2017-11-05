@@ -114,7 +114,9 @@ AuthenticationMethods {{ ssh_server__authentication_methods }}
 {% endif %}
 
 UsePAM {{ macros.bool(ssh_server__use_pam) }}
+{% if _ssh_server__version|version_compare(7.4, '<') %}
 UseLogin {{ macros.bool(ssh_server__use_login) }}
+{% endif %}
 
 ## Password authentication
 PasswordAuthentication {{ macros.bool(ssh_server__password_authentication) }}

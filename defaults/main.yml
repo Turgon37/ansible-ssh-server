@@ -236,11 +236,19 @@ ssh_server__host_keys_types_map:
   '6.0':
     - 'rsa'
 
+# Mapping of hostkey size
+ssh_server__host_keys_types_bits_map:
+  rsa: 2048
+  dsa: 1024
+  ecdsa: 384 #256, 521
+
 # If you want, you can manually set the host key that will be used
 # If you dont declare the following variable, It will be generate by using the map above
 #ssh_server__host_keys_types: []
 
+# (Do not touch) Prefix to apply on hostkey basename
 ssh_server__host_keys_file_prefix: ssh_host_
+# (Do not touch) Suffix to apply on hostkey basename
 ssh_server__host_keys_file_suffix: _key
 
 
