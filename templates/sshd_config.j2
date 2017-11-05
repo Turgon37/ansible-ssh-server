@@ -143,7 +143,9 @@ TrustedUserCAKeys "{{ ssh_server__trusted_user_ca_keys }}"
 {%   if ssh_server__revoked_keys is defined %}
 RevokedKeys "{{ ssh_server__revoked_keys }}"
 {%   endif %}
+{%   if ansible_os_family not in ['RedHat'] %}
 PermitBlacklistedKeys {{ macros.bool(ssh_server__permit_blacklisted_keys) }}
+{%   endif %}
 {% endif %}
 
 {% if _ssh_server__version|version_compare(7.4, '<') %}
