@@ -24,9 +24,7 @@ UsePrivilegeSeparation {{ ssh_server__privilege_separation }}
 {% for port in ssh_server__ports %}
 Port {{ port }}
 {% endfor %}
-
 AddressFamily "{{ ssh_server__address_family }}"
-
 {% for address in ssh_server__listen %}
 ListenAddress {{ address }}
 {% endfor %}
@@ -54,7 +52,6 @@ IPQoS {{ ssh_server__ip_qos[0] }} {{ ssh_server__ip_qos[1] }}
 
 
 ### Encryption parameters
-
 {% set _ssh_server__tpl_kex_algorithms = [] %}
 {% set _ssh_server__tpl_kex_algorithms_match = False %}
 {% for key, value in ssh_server__kex_algorithms_map.iteritems() %}
@@ -159,7 +156,7 @@ GSSAPIKeyExchange {{ macros.bool(ssh_server__gssapi_key_exchange) }}
 GSSAPICleanupCredentials {{ macros.bool(ssh_server__gssapi_cleanup_credentials) }}
 GSSAPIStrictAcceptorCheck {{ macros.bool(ssh_server__gssapi_strict_acceptor_check) }}
 GSSAPIStoreCredentialsOnRekey {{ macros.bool(ssh_server__gssapi_store_credentials_on_rekey) }}
-{%   if _ssh_server__version|version_compare(6.6, '>=') %}
+{%   if _ssh_server__version|version_compare(6.6, '>=') and ansible_distribution in ['Debian'] %}
 GSSAPIEnablek5users {{ macros.bool(ssh_server__gssapi_enable_k5_users) }}
 {%   endif %}
 {% endif %}
@@ -340,7 +337,7 @@ StrictModes {{ 'yes'|bool|ternary('yes', 'no') }}
 # (Default: (str) "none")
 Banner {{ ssh_server__banner }}
 
-{% if ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu' %}
+{% if ansible_os_family == 'Debian' %}
 # Specifies whether the distribution-specified extra version suffix is included during initial protocol handshake.
 DebianBanner no
 {% endif %}
