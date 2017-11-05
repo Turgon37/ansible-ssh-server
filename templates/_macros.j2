@@ -6,7 +6,7 @@
  # @return string
  #}
 {%- macro stringOrBool(value) -%}
-{{ value if value is string else value|ternary('yes', 'no') }}
+{{ value if value is string else bool(value) }}
 {%- endmacro -%}
 
 {#
@@ -16,6 +16,6 @@
  # @param value : the value of the parameter
  # @return string
  #}
-{%- macro bool(value, default) -%}
-{{ value|d(default)|bool|ternary('yes', 'no') }}
+{%- macro bool(value, default=None) -%}
+{{ value|bool|ternary('yes', 'no') }}
 {%- endmacro -%}
