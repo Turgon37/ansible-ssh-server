@@ -21,13 +21,69 @@ ssh_server__moduli_minimum: '4096'
 
 ## SSHD settings
 
+### NETWORK SECTION
 # List of ports which ``sshd`` will listen on.
 ssh_server__ports:
   - '22'
 
 # List of IP addresses on which ``sshd`` should listen for new connections. If
 # it's empty, ``sshd`` listens on all interfaces.
-ssh_server__listen: []
+# Specifies the local addresses sshd(8) should listen on.  The following forms may be used:
+#   ListenAddress host|IPv4_addr|IPv6_addr
+#   ListenAddress host|IPv4_addr:port
+#   ListenAddress [host|IPv6_addr]:port
+# If port is not specified, sshd will listen on the address and all prior Port options specified.
+# The default is to listen on all local addresses. Multiple ListenAddress options are permitted.
+ssh_server__listen: ['0.0.0.0']
+
+# Specifies which address family should be used by sshd(8).
+# Values: "any", "inet" (use IPv4 only), or "inet6" (use IPv6 only).
+ssh_server__address_family: 'any'
+
+# If sshd should look up the remote host name and check that the resolved host name for the remote IP address maps back to the very same IP address.
+ssh_server__use_dns: True
+
+# Specifies whether ssh-agent forwarding is permitted.
+# Values 'yes'/'all' to allow, 'no' to prevent, 'local' to allow only local, 'remote' to allow only remote
+ssh_server__allow_agent_forwarding: True
+
+# Specifies whether TCP forwarding is permitted.
+# Values 'yes'/'all' to allow, 'no' to prevent, 'local' to allow only local, 'remote' to allow only remote
+# (Default: (bool) yes)
+ssh_server__allow_tcp_forwarding: True
+
+# Specifies the destinations to which TCP port forwarding is permitted.
+# The forwarding specification must be one of the following forms:
+#   PermitOpen host:port
+#   PermitOpen IPv4_addr:port
+#   PermitOpen [IPv6_addr]:port
+# Multiple forwards may be specified by separating them with whitespace.
+# An argument of “any" can be used to remove all restrictions and permit any forwarding requests.
+ssh_server__permit_open: 'any'
+
+# Specifies whether StreamLocal (Unix-domain socket) forwarding is permitted
+# Values 'yes'/'all' to allow, 'no' to prevent, 'local' to allow only local, 'remote' to allow only remote
+ssh_server__allow_stream_local_forwarding: True
+
+# If tun device forwarding is allowed.
+# Values: "yes", "point-to-point" (layer 3), "ethernet" (layer 2), or "no".
+# Specifying “yes" permits both "point-to-point" and "ethernet".
+ssh_server__permit_tunnel: False
+
+# If compression is allowed, or delayed until the user has authenticated successfully.
+# Values: "yes", "delayed", or "no".
+ssh_server__compression: delayed
+
+# Specifies the IPv4 type-of-service or DSCP class for the connection.  
+# This option may take one or two arguments, separated by whitespace.
+# If one argument is specified, it is used as the packet class unconditionally.
+# If two values are specified, the first is automatically selected for interactive sessions and the second for non-interactive sessions.
+# The default is “lowdelay” for interactive sessions and “throughput” for non-interactive sessions.
+# Values: "af11", "af12", "af13", "af21", "af22", "af23", "af31", "af32", "af33", "af41", "af42", "af43", "cs0", "cs1",
+#  "cs2", "cs3", "cs4", "cs5", "cs6", "cs7", "ef", "lowdelay", "throughput", "reliability", or a numeric value.
+ssh_server__ip_qos: ["lowdelay", "throughput"]
+
+
 
 # List of SSH host keys that should be enabled, in order of preference.
 ssh_server__host_keys: [ 'ed25519', 'rsa', 'ecdsa' ]

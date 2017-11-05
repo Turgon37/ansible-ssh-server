@@ -1,3 +1,4 @@
+{%- import '_macros.j2' as macros with context -%}
 #
 # {{ ansible_managed }}
 #
@@ -5,8 +6,6 @@
 ###############################################################################
 # SSH Daemon configuration file
 ###############################################################################
-
-# See the sshd_config(5) manpage for details
 
 ### GENERAL SECTION
 #PidFile "/var/run/sshd.pid"
@@ -83,11 +82,6 @@ MACs {{ ([ ssh_server__tpl_macs|first ] + ssh_server__macs_additional) | unique 
 MACs {{ ssh_server__tpl_macs | join(",") }}
 {% endif %}
 
-# If compression is allowed, or delayed until the user has authenticated successfully.
-# Values: "yes", "delayed", or "no".
-# (Default: (str) "delayed")
-Compression	yes
-
 
 
 ### NETWORK SECTION
@@ -95,60 +89,24 @@ Compression	yes
 Port {{ port }}
 {% endfor %}
 
-# Specifies which address family should be used by sshd(8).
-# Values: "any", "inet" (use IPv4 only), or "inet6" (use IPv6 only).
-# (Default: (str) "any")
-AddressFamily "inet"
+AddressFamily "{{ ssh_server__address_family }}"
 
-{% if ssh_server__listen|d() %}
-# Specifies the local addresses sshd(8) should listen on.  The following forms may be used:
-#   ListenAddress host|IPv4_addr|IPv6_addr
-#   ListenAddress host|IPv4_addr:port
-#   ListenAddress [host|IPv6_addr]:port
-# If port is not specified, sshd will listen on the address and all prior Port options specified.
-# The default is to listen on all local addresses. Multiple ListenAddress options are permitted.
-#ListenAddress ::
-#ListenAddress 0.0.0.0
-{%   for address in ssh_server__listen %}
+{% for address in ssh_server__listen %}
 ListenAddress {{ address }}
-{%   endfor %}
-{% endif %}
+{% endfor %}
 
-# If sshd should look up the remote host name and check that the resolved host name for the remote IP address maps back to the very same IP address.
-# (Default: (bool) yes)
-UseDNS no
+UseDNS {{ macros.bool(ssh_server__use_dns, True) }}
 
-# Specifies whether ssh-agent forwarding is permitted.
-# Values 'yes'/'all' to allow, 'no' to prevent, 'local' to allow only local, 'remote' to allow only remote
-# (Default: (bool) yes)
-AllowAgentForwarding no
+AllowAgentForwarding {{ macros.stringOrBool(ssh_server__allow_agent_forwarding) }}
 
-# Specifies whether TCP forwarding is permitted.
-# Values 'yes'/'all' to allow, 'no' to prevent, 'local' to allow only local, 'remote' to allow only remote
-# (Default: (bool) yes)
-AllowTcpForwarding no
+AllowTcpForwarding {{ macros.stringOrBool(ssh_server__allow_tcp_forwarding) }}
+PermitOpen "{{ ssh_server__permit_open if ssh_server__permit_open is string else ssh_server__permit_open|join(' ') }}"
 
 {% if _ssh_server__version|version_compare(6.7, '>=') %}
-# Specifies whether StreamLocal (Unix-domain socket) forwarding is permitted
-# Values 'yes'/'all' to allow, 'no' to prevent, 'local' to allow only local, 'remote' to allow only remote
-AllowStreamLocalForwarding no
+AllowStreamLocalForwarding {{ macros.stringOrBool(ssh_server__allow_stream_local_forwarding) }}
 {% endif %}
 
-# Specifies the destinations to which TCP port forwarding is permitted.
-# The forwarding specification must be one of the following forms:
-#   PermitOpen host:port
-#   PermitOpen IPv4_addr:port
-#   PermitOpen [IPv6_addr]:port
-# Multiple forwards may be specified by separating them with whitespace.
-# An argument of “any" can be used to remove all restrictions and permit any forwarding requests.
-# (Default: (str) "any")
-#PermitOpen "any"
-
-# If tun device forwarding is allowed.
-# Values: "yes", "point-to-point" (layer 3), "ethernet" (layer 2), or "no".
-# Specifying “yes" permits both "point-to-point" and "ethernet".
-# (Default: (str) no)
-PermitTunnel no
+PermitTunnel {{ macros.stringOrBool(ssh_server__permit_tunnel) }}
 
 # If remote hosts are allowed to connect to ports forwarded for the client.
 # By default, sshd(8) binds remote port forwardings to the loopback address.
@@ -160,15 +118,12 @@ PermitTunnel no
 # (Default: (bool) no)
 #GatewayPorts no
 
-# Specifies the IPv4 type-of-service or DSCP class for the connection.  
-# This option may take one or two arguments, separated by whitespace.
-# If one argument is specified, it is used as the packet class unconditionally.
-# If two values are specified, the first is automatically selected for interactive sessions and the second for non-interactive sessions.
-# The default is “lowdelay” for interactive sessions and “throughput” for non-interactive sessions.
-# Values: "af11", "af12", "af13", "af21", "af22", "af23", "af31", "af32", "af33", "af41", "af42", "af43", "cs0", "cs1",
-#  "cs2", "cs3", "cs4", "cs5", "cs6", "cs7", "ef", "lowdelay", "throughput", "reliability", or a numeric value.
-# (Default: (str) "")
-IPQoS "lowdelay" "throughput"
+Compression	{{ macros.stringOrBool(ssh_server__compression) }}
+{% if ssh_server__ip_qos is string %}
+IPQoS {{ ssh_server__ip_qos }}
+{% else %}
+IPQoS {{ ssh_server__ip_qos[0] }} {{ ssh_server__ip_qos[1] }}
+{% endif %}
 
 
 
