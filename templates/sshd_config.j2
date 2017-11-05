@@ -18,70 +18,6 @@ Protocol 2
 # If it is set to "sandbox" then the pre-authentication unprivileged process is subject to additional restrictions.
 UsePrivilegeSeparation {{ ssh_server__privilege_separation }}
 
-# Specifies the available KEX (Key Exchange) algorithms. Multiple algorithms must be comma-separated.
-# (Default: (str) )
-{% set ssh_server__tpl_kex_algorithms = [] %}
-{% set ssh_server__tpl_kex_algorithms_match = False %}
-{% for key, value in ssh_server__kex_algorithms_map.iteritems() %}
-{%   if not ssh_server__tpl_kex_algorithms_match and
-      _ssh_server__version|d() and
-      _ssh_server__version | version_compare(key, '>=') %}
-{%   set ssh_server__tpl_kex_algorithms_match = True %}
-{%     for element in value %}
-{%       set _ = ssh_server__tpl_kex_algorithms.append(element) %}
-{%     endfor %}
-{%   endif %}
-{% endfor %}
-{% set ssh_server__tpl_kex_algorithms = (ssh_server__tpl_kex_algorithms + ssh_server__kex_algorithms_additional) | unique %}
-{% if ssh_server__tpl_kex_algorithms and ssh_server__paranoid|bool %}
-KexAlgorithms {{ ([ ssh_server__tpl_kex_algorithms|first ] + ssh_server__kex_algorithms_additional) | unique | join(",") }}
-{% elif ssh_server__tpl_kex_algorithms %}
-KexAlgorithms {{ ssh_server__tpl_kex_algorithms | join(",") }}
-{% endif %}
-
-# Specifies the ciphers allowed for protocol version 2. Multiple ciphers must be comma-separated.
-# (Default: (str) )
-{% set ssh_server__tpl_ciphers = [] %}
-{% set ssh_server__tpl_ciphers_match = False %}
-{% for key, value in ssh_server__ciphers_map.iteritems() %}
-{%   if not ssh_server__tpl_ciphers_match and
-        _ssh_server__version|d() and
-        _ssh_server__version | version_compare(key, '>=') %}
-{%     set ssh_server__tpl_ciphers_match = True %}
-{%     for element in value %}
-{%       set _ = ssh_server__tpl_ciphers.append(element) %}
-{%     endfor %}
-{%   endif %}
-{% endfor %}
-{% set ssh_server__tpl_ciphers = (ssh_server__tpl_ciphers + ssh_server__ciphers_additional) | unique %}
-{% if ssh_server__tpl_ciphers and ssh_server__paranoid|bool %}
-Ciphers {{ ([ ssh_server__tpl_ciphers|first ] + ssh_server__ciphers_additional) | unique | join(",") }}
-{% elif ssh_server__tpl_ciphers %}
-Ciphers {{ ssh_server__tpl_ciphers | join(",") }}
-{% endif %}
-
-# Specifies the available MAC (message authentication code) algorithms.
-# The MAC algorithm is used in protocol version 2 for data integrity protection.
-# (Default: (str) )
-{% set ssh_server__tpl_macs = [] %}
-{% set ssh_server__tpl_macs_match = False %}
-{% for key, value in ssh_server__macs_map.iteritems() %}
-{%   if not ssh_server__tpl_macs_match and
-        _ssh_server__version|d() and
-        _ssh_server__version | version_compare(key, '>=') %}
-{%     set ssh_server__tpl_macs_match = True %}
-{%     for element in value %}
-{%       set _ = ssh_server__tpl_macs.append(element) %}
-{%     endfor %}
-{%   endif %}
-{% endfor %}
-{% set ssh_server__tpl_macs = (ssh_server__tpl_macs + ssh_server__macs_additional) | unique %}
-{% if ssh_server__tpl_macs and ssh_server__paranoid|bool %}
-MACs {{ ([ ssh_server__tpl_macs|first ] + ssh_server__macs_additional) | unique | join(",") }}
-{% elif ssh_server__tpl_macs %}
-MACs {{ ssh_server__tpl_macs | join(",") }}
-{% endif %}
-
 
 
 ### NETWORK SECTION
@@ -117,6 +53,55 @@ IPQoS {{ ssh_server__ip_qos[0] }} {{ ssh_server__ip_qos[1] }}
 
 
 
+### Encryption parameters
+
+{% set _ssh_server__tpl_kex_algorithms = [] %}
+{% set _ssh_server__tpl_kex_algorithms_match = False %}
+{% for key, value in ssh_server__kex_algorithms_map.iteritems() %}
+{%   if not _ssh_server__tpl_kex_algorithms_match and _ssh_server__version|version_compare(key, '>=') %}
+{%     set _ssh_server__tpl_kex_algorithms_match = True %}
+{%     for element in value %}
+{%       set _ = _ssh_server__tpl_kex_algorithms.append(element) %}
+{%     endfor %}
+{%   endif %}
+{% endfor %}
+{% set _ssh_server__tpl_kex_algorithms = (_ssh_server__tpl_kex_algorithms|union(ssh_server__kex_algorithms_additional)|unique) %}
+{% if _ssh_server__tpl_kex_algorithms %}
+KexAlgorithms {{ _ssh_server__tpl_kex_algorithms|join(",") }}
+{% endif %}
+
+{% set _ssh_server__tpl_ciphers = [] %}
+{% set _ssh_server__tpl_ciphers_match = False %}
+{% for key, value in ssh_server__ciphers_map.iteritems() %}
+{%   if not _ssh_server__tpl_ciphers_match and _ssh_server__version | version_compare(key, '>=') %}
+{%     set _ssh_server__tpl_ciphers_match = True %}
+{%     for element in value %}
+{%       set _ = _ssh_server__tpl_ciphers.append(element) %}
+{%     endfor %}
+{%   endif %}
+{% endfor %}
+{% set _ssh_server__tpl_ciphers = (_ssh_server__tpl_ciphers|union(ssh_server__ciphers_additional)|unique) %}
+{% if _ssh_server__tpl_ciphers %}
+Ciphers {{ _ssh_server__tpl_ciphers|join(",") }}
+{% endif %}
+
+{% set _ssh_server__tpl_macs = [] %}
+{% set _ssh_server__tpl_macs_match = False %}
+{% for key, value in ssh_server__macs_map.iteritems() %}
+{%   if not _ssh_server__tpl_macs_match and _ssh_server__version | version_compare(key, '>=') %}
+{%     set _ssh_server__tpl_macs_match = True %}
+{%     for element in value %}
+{%       set _ = _ssh_server__tpl_macs.append(element) %}
+{%     endfor %}
+{%   endif %}
+{% endfor %}
+{% set _ssh_server__tpl_macs = (_ssh_server__tpl_macs|union(ssh_server__macs_additional)|unique) %}
+{% if _ssh_server__tpl_macs %}
+MACs {{ _ssh_server__tpl_macs|join(",") }}
+{% endif %}
+
+
+
 ### AUTHENTIFICATION MODE
 {% if ssh_server__authentication_methods is defined %}
 AuthenticationMethods {{ ssh_server__authentication_methods }}
@@ -142,6 +127,21 @@ AuthorizedKeysFile {{ ssh_server__authorized_keys if ssh_server__authorized_keys
 AuthorizedKeysCommand {{ ssh_server__authorized_keys_command }}
 AuthorizedKeysCommandUser {{ ssh_server__authorized_keys_command_user }}
 {% endif %}
+
+{% if _ssh_server__version|version_compare(7.4, '>=') %}
+# Protocol 1
+RSAAuthentication {{ macros.bool(ssh_server__rsa_authentication) }}
+RhostsRSAAuthentication {{ macros.bool(ssh_server__rhosts_rsa_authentication) }}
+{% endif %}
+
+# Protocol 2
+HostbasedAuthentication {{ macros.bool(ssh_server__host_based_authentication) }}
+{% if ssh_server__host_based_authentication|bool %}
+HostbasedUsesNameFromPacketOnly {{ macros.bool(ssh_server__host_based_uses_name_from_packet_only) }}
+IgnoreUserKnownHosts {{ macros.bool(ssh_server__ignore_user_known_hosts) }}
+{% endif %}
+
+IgnoreRhosts {{ macros.bool(ssh_server__ignore_rhosts) }}
 
 ## Kerberos authentication
 KerberosAuthentication {{ macros.bool(ssh_server__kerberos_authentication) }}
@@ -225,39 +225,11 @@ HostKey /etc/ssh/ssh_host_{{ hostkey }}_key
 {% endfor %}
 
 
-## Host authentication
-# Specifies that .rhosts and .shosts files will not be used in RhostsRSAAuthentication or HostbasedAuthentication.
-# /etc/hosts.equiv and /etc/ssh/shosts.equiv are still used.
-# (Default: (bool) yes)
-IgnoreRhosts yes
 
-# Specifies whether sshd should ignore the user's ~/.ssh/known_hosts during RhostsRSAAuthentication or HostbasedAuthentication.
-# (Default: (bool) no)
-IgnoreUserKnownHosts yes
-
-
-## Protocol 2
-# If rhosts or /etc/hosts.equiv authentication together with successful public key client host authentication is allowed.
-# (Default: (bool) no)
-HostbasedAuthentication no
-
-# If the server will make a reverse name lookup when matching the name in the ~/.shosts, ~/.rhosts, and /etc/hosts.equiv
-# files during HostbasedAuthentication. If “yes” sshd uses the name supplied by the client rather than attempting to resolve
-# the name from the TCP connection itself.
-# (Default: (bool) no)
-HostbasedUsesNameFromPacketOnly no
 
 
 {% if _ssh_server__version|version_compare(7.4, '>=') %}
 ## Protocol 1
-# If pure RSA authentication is allowed.
-# (Default: (bool) yes)
-RSAAuthentication no
-
-# If rhosts or /etc/hosts.equiv authentication together with successful RSA host authentication is allowed.
-# (Default: (bool) no)
-RhostsRSAAuthentication no
-
 # Defines the number of bits in the ephemeral server key.
 # (Default: (int) 1024)
 #ServerKeyBits 512
@@ -267,6 +239,7 @@ RhostsRSAAuthentication no
 # (Default: (int) 3600)
 #KeyRegenerationInterval 3600
 {% endif %}
+
 
 
 
