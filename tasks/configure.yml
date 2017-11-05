@@ -1,40 +1,7 @@
 ---
 
-- name: Get OpenSSH server version
-  environment:
-    LC_MESSAGES: 'C'
-  shell: '/usr/bin/env sshd -v 2>&1 | grep --only-matching --extended-regexp --regexp="OpenSSH_[a-z0-9\.]+"'
-  register: _ssh_server__version_raw
-  changed_when: False
-  check_mode: no
-
-- name: Format OpenSSH server version
-  set_fact:
-    _ssh_server__version: "{{ _ssh_server__version_raw.stdout|regex_replace('^OpenSSH_([0-9]+\\.[0-9]+).*', '\\1') }}"
-
-- name: Ensure that Ed25519 host key is present
-  command: 'ssh-keygen -q -t ed25519 -N "" -f {{ ssh_server_config_dir }}/ssh_host_ed25519_key'
-  args:
-    creates: '{{ ssh_server_config_dir }}/ssh_host_ed25519_key'
-  when: _ssh_server__version|d() and
-        _ssh_server__version | version_compare(6.5, '>=')
-
-- name: Get list of available host keys
-  shell: find {{ ssh_server_config_dir }} -maxdepth 1 -type f -name 'ssh_host_*_key.pub' -exec basename {} .pub \;
-  register: _ssh_server__host_keys
-  changed_when: False
-  check_mode: no
-
-- name: Check if banner file exists
-  stat:
-    path: '{{ ssh_server__banner }}'
-  register: _ssh_server__banner_file
-  when: ssh_server__banner != 'none'
-
-- name: Assert banner file exists
-  fail:
-    msg: 'The banner file must exists'
-  when: ssh_server__banner != 'none' and not _ssh_server__banner_file.stat.exists
+- import_tasks: configure-hostkeys.yml
+  tags: ['ssh-server', 'ssh-server-configure-hostkeys']
 
 - import_tasks: configure-moduli.yml
   tags: ['ssh-server', 'ssh-server-configure-moduli']
@@ -46,6 +13,5 @@
     owner: root
     group: root
     mode:  0640
-    backup: yes
     validate: 'sshd -t -f %s'
   notify: [ 'test-and-restart-sshd' ]

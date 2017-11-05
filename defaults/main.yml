@@ -214,6 +214,34 @@ ssh_server__server_key_bits: 2048
 # If the value is 0, the key is never regenerated.
 ssh_server__key_regeneration_interval: 3600
 
+# Specifies a file containing a public host certificate.
+# The certificate's public key must match a private host key already specified by HostKey.
+#ssh_server__host_certificate:
+
+# List of SSH host keys that should be enabled, in order of preference.
+# Specifies a file containing a private host key used by SSH. It is possible to have multiple host key files.
+# Note that sshd will refuse to use a file if it is group/world-accessible.
+# (Default: (str):
+#   - for protocol version 1
+#     - /etc/ssh/ssh_host_key
+# 	- for protocol version 2
+#     - /etc/ssh/ssh_host_dsa_key     NOT THRUSTED
+#     - /etc/ssh/ssh_host_ecdsa_key   NOT THRUSTED
+#     - /etc/ssh/ssh_host_rsa_key
+#     - /etc/ssh/ssh_host_ed25519_key
+ssh_server__host_keys_types_map:
+  '6.5':
+    - 'ed25519'
+    - 'rsa'
+  '6.0':
+    - 'rsa'
+
+# If you want, you can manually set the host key that will be used
+# If you dont declare the following variable, It will be generate by using the map above
+#ssh_server__host_keys_types: []
+
+ssh_server__host_keys_file_prefix: ssh_host_
+ssh_server__host_keys_file_suffix: _key
 
 
 ### AUTHENTIFICATION MODE
@@ -297,24 +325,23 @@ ssh_server__authorized_keys_command_user: 'nobody'
 # In case of no file specified, the username of the user must appear in a certificate's principals list for it to be accepted.
 # Note that AuthorizedPrincipalsFile is only used when authentication proceeds using a CA listed in TrustedUserCAKeys and is not
 # consulted for certification authorities trusted via ~/.ssh/authorized_keys, though the principals= key option offers a similar facility.
-ssh_server__authorized_principals_file: none
+#ssh_server__authorized_principals_file:
 
 # Specifies a file containing public keys of certificate authorities that are trusted to sign user certificates for authentication.
 # Keys are listed one per line; empty lines and comments starting with ‘#’ are allowed.
 # If a certificate is presented for authentication and has its signing CA key listed in this file, then it may be used for authen‐
 # tication for any user listed in the certificate's principals list.
 # Note that certificates that lack a list of principals will not be permitted for authentication using TrustedUserCAKeys.
-ssh_server__trusted_user_ca_keys: none
+#ssh_server__trusted_user_ca_keys:
 
 # Specifies a list of revoked public keys.  Keys listed in this file will be refused for public key authentication.
 # Note that if this file is not readable, then public key authentication will be refused for all users.
-ssh_server__revoked_keys: none
+#ssh_server__revoked_keys:
 
 # If sshd should allow keys recorded in its blacklist of known-compromised keys.
 # If “yes", authentication with compromised keys will be logged but accepted.
 # If “no",  authentication with compromised keys will be rejected.
 ssh_server__permit_blacklisted_keys: False
-
 
 # Protocol 1
 # If pure RSA authentication is allowed.
@@ -385,8 +412,7 @@ ssh_server__gssapi_enable_k5_users: False
 
 
 
-# List of SSH host keys that should be enabled, in order of preference.
-ssh_server__host_keys: [ 'ed25519', 'rsa', 'ecdsa' ]
+
 
 # How much information should be logged by ``sshd`` server.
 ssh_server__log_level: 'INFO'

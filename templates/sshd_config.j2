@@ -99,6 +99,13 @@ ServerKeyBits {{ ssh_server__server_key_bits|int }}
 KeyRegenerationInterval {{ ssh_server__key_regeneration_interval|int }}
 {% endif %}
 
+{% if ssh_server__host_certificate is defined %}
+HostCertificate {{ ssh_server__host_certificate }}
+{% endif %}
+{% for hostkey in ssh_server__host_keys|d([]) %}
+HostKey {{ hostkey }}
+{% endfor %}
+
 
 
 ### AUTHENTIFICATION MODE
@@ -125,9 +132,15 @@ AuthorizedKeysFile {{ ssh_server__authorized_keys if ssh_server__authorized_keys
 {% if ssh_server__authorized_keys_command is defined and _ssh_server__version|version_compare(6.2, '>=') %}
 AuthorizedKeysCommand {{ ssh_server__authorized_keys_command }}
 AuthorizedKeysCommandUser {{ ssh_server__authorized_keys_command_user }}
+{%   if ssh_server__authorized_principals_file is defined %}
 AuthorizedPrincipalsFile "{{ ssh_server__authorized_principals_file }}"
+{%   endif %}
+{%   if ssh_server__trusted_user_ca_keys is defined %}
 TrustedUserCAKeys "{{ ssh_server__trusted_user_ca_keys }}"
+{%   endif %}
+{%   if ssh_server__revoked_keys is defined %}
 RevokedKeys "{{ ssh_server__revoked_keys }}"
+{%   endif %}
 PermitBlacklistedKeys {{ macros.bool(ssh_server__permit_blacklisted_keys) }}
 {% endif %}
 
@@ -172,29 +185,7 @@ GSSAPIEnablek5users {{ macros.bool(ssh_server__gssapi_enable_k5_users) }}
 
 
 
-# Specifies a file containing a public host certificate.
-# The certificate's public key must match a private host key already specified by HostKey.
-#HostCertificate
 
-
-
-# HostKeys for protocol version 2
-# Specifies a file containing a private host key used by SSH. It is possible to have multiple host key files.
-# Note that sshd will refuse to use a file if it is group/world-accessible.
-# (Default: (str):
-#   - for protocol version 1
-#     - /etc/ssh/ssh_host_key
-# 	- for protocol version 2
-#     - /etc/ssh/ssh_host_dsa_key     NOT THRUSTED
-#     - /etc/ssh/ssh_host_ecdsa_key   NOT THRUSTED
-#     - /etc/ssh/ssh_host_rsa_key
-#     - /etc/ssh/ssh_host_ed25519_key
-# HostKeys for protocol version 2
-{% for hostkey in ssh_server__host_keys %}
-{%   if ('ssh_host_' + hostkey + '_key') in _ssh_server__host_keys.stdout_lines %}
-HostKey /etc/ssh/ssh_host_{{ hostkey }}_key
-{%   endif %}
-{% endfor %}
 
 
 
