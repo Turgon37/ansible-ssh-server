@@ -156,7 +156,7 @@ GSSAPIKeyExchange {{ macros.bool(ssh_server__gssapi_key_exchange) }}
 GSSAPICleanupCredentials {{ macros.bool(ssh_server__gssapi_cleanup_credentials) }}
 GSSAPIStrictAcceptorCheck {{ macros.bool(ssh_server__gssapi_strict_acceptor_check) }}
 GSSAPIStoreCredentialsOnRekey {{ macros.bool(ssh_server__gssapi_store_credentials_on_rekey) }}
-{%   if _ssh_server__version|version_compare(6.6, '>=') and ansible_distribution in ['Debian'] %}
+{%   if _ssh_server__version|version_compare(6.6, '>=') and ansible_distribution not in ['Debian'] %}
 GSSAPIEnablek5users {{ macros.bool(ssh_server__gssapi_enable_k5_users) }}
 {%   endif %}
 {% endif %}
