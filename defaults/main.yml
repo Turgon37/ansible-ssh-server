@@ -72,6 +72,12 @@ ssh_server__login_grace_time: '20s'
 # Path to file which should be displayed before user authentication.
 ssh_server__banner: 'none'
 
+# If sshd should print /etc/motd when a user logs in interactively.
+ssh_server__print_motd: 'no'
+
+# If sshd should print the date and time of the last user login when a user logs in interactively.
+ssh_server__print_last_log: 'yes'
+
 # List of environments variable that the server will accept to load
 ssh_server__accept_env: [ 'LANG', 'LC_*' ]
 

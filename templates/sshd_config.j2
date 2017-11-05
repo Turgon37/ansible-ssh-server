@@ -25,8 +25,8 @@ UsePrivilegeSeparation {{ ssh_server__privilege_separation }}
 {% set ssh_server__tpl_kex_algorithms_match = False %}
 {% for key, value in ssh_server__kex_algorithms_map.iteritems() %}
 {%   if not ssh_server__tpl_kex_algorithms_match and
-      _ssh_server__version.stdout|d() and
-      _ssh_server__version.stdout | version_compare(key, '>=') %}
+      _ssh_server__version|d() and
+      _ssh_server__version | version_compare(key, '>=') %}
 {%   set ssh_server__tpl_kex_algorithms_match = True %}
 {%     for element in value %}
 {%       set _ = ssh_server__tpl_kex_algorithms.append(element) %}
@@ -46,8 +46,8 @@ KexAlgorithms {{ ssh_server__tpl_kex_algorithms | join(",") }}
 {% set ssh_server__tpl_ciphers_match = False %}
 {% for key, value in ssh_server__ciphers_map.iteritems() %}
 {%   if not ssh_server__tpl_ciphers_match and
-        _ssh_server__version.stdout|d() and
-        _ssh_server__version.stdout | version_compare(key, '>=') %}
+        _ssh_server__version|d() and
+        _ssh_server__version | version_compare(key, '>=') %}
 {%     set ssh_server__tpl_ciphers_match = True %}
 {%     for element in value %}
 {%       set _ = ssh_server__tpl_ciphers.append(element) %}
@@ -68,8 +68,8 @@ Ciphers {{ ssh_server__tpl_ciphers | join(",") }}
 {% set ssh_server__tpl_macs_match = False %}
 {% for key, value in ssh_server__macs_map.iteritems() %}
 {%   if not ssh_server__tpl_macs_match and
-        _ssh_server__version.stdout|d() and
-        _ssh_server__version.stdout | version_compare(key, '>=') %}
+        _ssh_server__version|d() and
+        _ssh_server__version | version_compare(key, '>=') %}
 {%     set ssh_server__tpl_macs_match = True %}
 {%     for element in value %}
 {%       set _ = ssh_server__tpl_macs.append(element) %}
@@ -128,7 +128,7 @@ AllowAgentForwarding no
 # (Default: (bool) yes)
 AllowTcpForwarding no
 
-{% if _ssh_server__version.stdout|float >= 6.7  %}
+{% if _ssh_server__version|version_compare(6.7, '>=') %}
 # Specifies whether StreamLocal (Unix-domain socket) forwarding is permitted
 # Values 'yes'/'all' to allow, 'no' to prevent, 'local' to allow only local, 'remote' to allow only remote
 AllowStreamLocalForwarding no
@@ -202,8 +202,7 @@ AllowGroups {{ (ssh_server__allow_groups|d([]) | list) | unique | join(" ") }}
 #   -"without-password", password authentication is disabled for root.
 #   -"forced-commands-only", root login with public key authentication will be allowed, but only if the command option has been specified.
 #   -"no", root is not allowed to log in.
-# (Default: (bool) yes)
-PermitRootLogin {{ ssh_server__permit_root_login }}
+PermitRootLogin {{ ssh_server__permit_root_login|d(True)|bool|ternary('yes', 'no') }}
 
 
 
@@ -216,7 +215,7 @@ AuthenticationMethods {{ ssh_server__authentication_methods }}
 ## Password authentication
 # If password authentication is allowed.
 # (Default: (bool) yes)
-PasswordAuthentication {{ ssh_server__password_authentication|d(true)|bool|ternary('yes', 'no') }}
+PasswordAuthentication {{ ssh_server__password_authentication|d(True)|bool|ternary('yes', 'no') }}
 
 # When password authentication is allowed, it specifies whether the server allows login to accounts with empty password strings.
 # (Default: (bool) no)
@@ -292,8 +291,8 @@ PubkeyAuthentication {{ ssh_server__pubkey_authentication|d(true)|bool|ternary('
 AuthorizedKeysFile {{ ssh_server__authorized_keys if ssh_server__authorized_keys is string else ssh_server__authorized_keys|join(' ') }}
 
 {% if ssh_server__authorized_keys_lookup|bool and
-      _ssh_server__version.stdout|d() and
-      _ssh_server__version.stdout | version_compare('6.2', '>=') %}
+      _ssh_server__version|d() and
+      _ssh_server__version | version_compare('6.2', '>=') %}
 # Specifies a program to be used to look up the user's public keys.
 # The program must be owned by root and not writable
 # by group or others.  It will be invoked with a single argument of the username being authenticated,
@@ -346,6 +345,7 @@ HostbasedAuthentication no
 HostbasedUsesNameFromPacketOnly no
 
 
+{% if _ssh_server__version|version_compare(7.4, '>=') %}
 ## Protocol 1
 # If pure RSA authentication is allowed.
 # (Default: (bool) yes)
@@ -363,6 +363,7 @@ RhostsRSAAuthentication no
 # If the value is 0, the key is never regenerated.
 # (Default: (int) 3600)
 #KeyRegenerationInterval 3600
+{% endif %}
 
 
 ## Kerberos options
@@ -400,7 +401,7 @@ GSSAPIAuthentication {{ ssh_server__gssapi_authentication|d(false)|bool|ternary(
 
 # If to automatically destroy the user's credentials cache on logout. (Protocol 2)
 # (Default:(bool) yes)
-GSSAPICleanupCredentials {{ ssh_server__gssapi_cleanup_credentials|d(true)|bool|ternary('yes', 'no') }}
+GSSAPICleanupCredentials {{ ssh_server__gssapi_cleanup_credentials|d(True)|bool|ternary('yes', 'no') }}
 
 # Determines whether to be strict about the identity of the GSSAPI acceptor a client authenticates against.
 # If "yes" then the client must authenticate against the host service on the current hostname.
@@ -417,12 +418,10 @@ GSSAPICleanupCredentials {{ ssh_server__gssapi_cleanup_credentials|d(true)|bool|
 ### CLIENT CONNECTION PARAMETERS
 ## Login spec
 # The server disconnects after this time if the user has not successfully logged in. If 0, there is no time limit.
-# (Default: (int) 120)
 LoginGraceTime {{ ssh_server__login_grace_time }}
 
 # Specifies the maximum number of authentication attempts permitted per connection.
-# (Default: (int) 6) 
-MaxAuthTries {{ ssh_server__max_auth_tries }}
+MaxAuthTries {{ ssh_server__max_auth_tries|int }}
 
 # Specifies the maximum number of open sessions permitted per network connection.
 # (Default: (int) 10)
@@ -445,7 +444,7 @@ AcceptEnv {{ (ssh_server__accept_env | d([]) | list) | unique | join(" ") }}
 # (Default: (bool) no)
 PermitUserEnvironment no
 
-{% if _ssh_server__version.stdout|float >= 6.7  %}
+{% if _ssh_server__version|version_compare(6.7, '>=') %}
 # Specifies whether any ~/.ssh/rc file is executed
 # (Default: (bool) yes)
 PermitUserRC no
@@ -457,8 +456,7 @@ PermitUserRC no
 
 # If sshd should check file modes and ownership of the user's files and home directory before accepting login.
 # Note: for ChrootDirectory permissions and owner ship are checked unconditionally.
-# (Default: (bool) yes)
-StrictModes yes
+StrictModes {{ 'yes'|bool|ternary('yes', 'no') }}
 
 
 ## Greeting options
@@ -468,17 +466,14 @@ Banner {{ ssh_server__banner }}
 
 {% if ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu' %}
 # Specifies whether the distribution-specified extra version suffix is included during initial protocol handshake.
-# (Default: (bool) yes)
 DebianBanner no
 {% endif %}
 
 # If sshd should print /etc/motd when a user logs in interactively.
-# (Default: (bool) yes)
-PrintMotd no
+PrintMotd {{ ssh_server__print_motd|d('no') }}
 
 # If sshd should print the date and time of the last user login when a user logs in interactively.
-# (Default: (bool) yes)
-PrintLastLog yes
+PrintLastLog {{ ssh_server__print_last_log|d('yes') }}
 
 # Additional text to append to the SSH protocol banner sent by the server upon connection.
 VersionAddendum {{ ansible_hostname }}
