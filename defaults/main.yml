@@ -232,6 +232,7 @@ ssh_server__key_regeneration_interval: 3600
 ssh_server__host_keys_types_map:
   '6.5':
     - 'ed25519'
+    - 'ecdsa'
     - 'rsa'
   '6.0':
     - 'rsa'
@@ -351,13 +352,17 @@ ssh_server__authorized_keys_command_user: 'nobody'
 # If “no",  authentication with compromised keys will be rejected.
 ssh_server__permit_blacklisted_keys: False
 
+## RSA authentication
+# ---------------------------------------
 # Protocol 1
 # If pure RSA authentication is allowed.
 ssh_server__rsa_authentication: False
 
 # If rhosts or /etc/hosts.equiv authentication together with successful RSA host authentication is allowed.
-ssh_server__rhosts_rsa_authentication: false
+ssh_server__rhosts_rsa_authentication: False
 
+## Hostbased authentication
+# ---------------------------------------
 # Protocol 2
 # If rhosts or /etc/hosts.equiv authentication together with successful public key client host authentication is allowed.
 ssh_server__host_based_authentication: False

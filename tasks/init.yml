@@ -1,3 +1,5 @@
+---
+
 - name: Get OpenSSH server version
   environment:
     LC_MESSAGES: 'C'

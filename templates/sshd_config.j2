@@ -149,11 +149,13 @@ PermitBlacklistedKeys {{ macros.bool(ssh_server__permit_blacklisted_keys) }}
 {% endif %}
 
 {% if _ssh_server__version|version_compare(7.4, '<') %}
+## RSAAuthentication
 # Protocol 1
 RSAAuthentication {{ macros.bool(ssh_server__rsa_authentication) }}
 RhostsRSAAuthentication {{ macros.bool(ssh_server__rhosts_rsa_authentication) }}
 {% endif %}
 
+## HostbasedAuthentication
 # Protocol 2
 HostbasedAuthentication {{ macros.bool(ssh_server__host_based_authentication) }}
 {% if ssh_server__host_based_authentication|bool %}
