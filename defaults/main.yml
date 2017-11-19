@@ -68,6 +68,11 @@ ssh_server__address_family: 'any'
 # If sshd should look up the remote host name and check that the resolved host name for the remote IP address maps back to the very same IP address.
 ssh_server__use_dns: True
 
+# If the system should send TCP keepalive messages to the other side.
+# If they are sent, death of the connection or crash of one of the machines will be properly noticed.
+# If they are not, sessions may hang indefinitely on the server, leaving “ghost” users and consuming server resources.
+ssh_server__tcp_keepalive: True
+
 # Specifies whether ssh-agent forwarding is permitted.
 # Values 'yes'/'all' to allow, 'no' to prevent, 'local' to allow only local, 'remote' to allow only remote
 ssh_server__allow_agent_forwarding: True
@@ -496,7 +501,7 @@ ssh_server__max_startups:
   rate: 30
   full: 100
 
-## User session
+## User environment
 # ------------------------------
 # What environment variables sent by the client will be copied into the session's environ.
 # Variables are specified by name, which may contain the wildcard characters ‘*’ and ‘?’.
@@ -536,11 +541,29 @@ ssh_server__print_motd: True
 # If sshd should print the date and time of the last user login when a user logs in interactively.
 ssh_server__print_last_log: True
 
+## Session options
+# ------------------------------
+# The pathname of a directory to chroot to after authentication.
+# All components of the pathname must be root-owned directories that are not writable by any other user or group.
+# After the chroot, sshd changes the working directory to the user's home directory.
+# Available tokens :
+#   - %% is replaced by a literal '%'
+#   - %h is replaced by the home directory of the user being authenticated
+#   - %u is replaced by the username of that user.
+# The ChrootDirectory must contain the necessary files and directories to support the user's session.
+ssh_server__chroot_directory: none
+
+# Number of seconds after which if no data has been received from the client, sshd(8) will send a message to request a response from the client.
+ssh_server__client_alive_interval: 0
+
+# The number of client alive messages which may be sent without sshd(8) receiving any messages back from the client.
+# If it is reached sshd will disconnect the client, terminating the session.
+ssh_server__client_alive_count_max: 3
+
 
 
 # Enable or disable X11 forwarding by the server.
-ssh_server__x11_forwarding: 'no'
-
+ssh_server__x11_forwarding: False
 
 
 

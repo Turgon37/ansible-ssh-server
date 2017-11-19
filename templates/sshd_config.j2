@@ -30,6 +30,7 @@ ListenAddress {{ address }}
 {% endfor %}
 
 UseDNS {{ macros.bool(ssh_server__use_dns, True) }}
+TCPKeepAlive {{ macros.bool(ssh_server__tcp_keepalive) }}
 
 AllowAgentForwarding {{ macros.stringOrBool(ssh_server__allow_agent_forwarding) }}
 
@@ -235,33 +236,11 @@ PrintMotd {{ macros.bool(ssh_server__print_motd) }}
 PrintLastLog {{ macros.bool(ssh_server__print_last_log) }}
 
 
+## SESSION
+ChrootDirectory {{ ssh_server__chroot_directory }}
 
-### SESSION PARAMETERS
-# The pathname of a directory to chroot to after authentication.
-# All components of the pathname must be root-owned directories that are not writable by any other user or group.
-# After the chroot, sshd changes the working directory to the user's home directory.
-# Available tokens :
-#   - %% is replaced by a literal '%'
-#   - %h is replaced by the home directory of the user being authenticated
-#   - %u is replaced by the username of that user.
-# The ChrootDirectory must contain the necessary files and directories to support the user's session.
-# (Default: (str) ""
-#ChrootDirectory "/home/%u"
-
-# Number of seconds after which if no data has been received from the client, sshd(8) will send a message to request a response from the client.
-# (Default: (int) 0)
-ClientAliveInterval 10
-
-# The number of client alive messages which may be sent without sshd(8) receiving any messages back from the client.
-# If it is reached sshd will disconnect the client, terminating the session.
-# (Default: (int) 3)
-ClientAliveCountMax 3
-
-# If the system should send TCP keepalive messages to the other side.
-# If they are sent, death of the connection or crash of one of the machines will be properly noticed.
-# If they are not, sessions may hang indefinitely on the server, leaving “ghost” users and consuming server resources.
-# (Default: (bool) yes
-TCPKeepAlive no
+ClientAliveInterval {{ ssh_server__client_alive_interval|int }}
+ClientAliveCountMax {{ ssh_server__client_alive_count_max|int }}
 
 # Specifies the maximum amount of data that may be transmitted before the session key is renegotiated
 # optionally followed a maximum amount of time that may pass before the session key is renegotiated
@@ -271,8 +250,7 @@ TCPKeepAlive no
 
 ### X11 FORWARDING
 # If X11 forwarding is permitted.
-# (Default: (bool) no)
-X11Forwarding {{ ssh_server__x11_forwarding }}
+X11Forwarding {{ macros.bool(ssh_server__x11_forwarding) }}
 
 # The first display number available for X11 forwarding.
 # (Default: (int) 10)
