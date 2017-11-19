@@ -235,9 +235,11 @@ DebianBanner {{ macros.bool(ssh_server__debian_banner) }}
 PrintMotd {{ macros.bool(ssh_server__print_motd) }}
 PrintLastLog {{ macros.bool(ssh_server__print_last_log) }}
 
-
 ## SESSION
 ChrootDirectory {{ ssh_server__chroot_directory }}
+{% if _ssh_server__version|version_compare(4.4, '>=') and ssh_server__force_command is defined %}
+ForceCommand {{ ssh_server__force_command }}
+{% endif %}
 
 ClientAliveInterval {{ ssh_server__client_alive_interval|int }}
 ClientAliveCountMax {{ ssh_server__client_alive_count_max|int }}
@@ -247,40 +249,22 @@ ClientAliveCountMax {{ ssh_server__client_alive_count_max|int }}
 # The first argument is specified in bytes and may have a suffix of ‘K’, ‘M’, or ‘G’.
 #RekeyLimit default none
 
-
-### X11 FORWARDING
-# If X11 forwarding is permitted.
+## X11 FORWARDING
 X11Forwarding {{ macros.bool(ssh_server__x11_forwarding) }}
-
-# The first display number available for X11 forwarding.
-# (Default: (int) 10)
-X11DisplayOffset 10
-
-# If sshd should bind the X11 forwarding server to the loopback address or to the wildcard address.
-# By default, sshd binds the forwarding server to the loopback address and sets the hostname part of the DISPLAY environment variable to “localhost”.
-# This prevents remote hosts from connecting to the proxy display. However, some older X11 clients may not function with this configuration.
-# X11UseLocalhost may be set to “no” to specify that the forwarding server should be bound to the wildcard address.
-# (Default: (bool) yes)
-X11UseLocalhost yes
-
-# Specifies the full pathname of the xauth(1) program.
-# (Default: (str) "/usr/bin/xauth")
-#XAuthLocation ""
-
-
-
-
+{% if ssh_server__x11_forwarding|bool %}
+X11DisplayOffset {{ ssh_server__x11_display_offset|int }}
+X11UseLocalhost {{ macros.bool(ssh_server__x11_use_localhost) }}
+{%   if ssh_server__xauth_location is defined %}
+XAuthLocation {{ ssh_server__xauth_location }}
+{%   endif %}
+{% endif %}
 
 
 
 ### SUBSYSTEMS
-# Configures an external subsystem (e.g. file transfer daemon).
-# Arguments should be a subsystem name and a command (with optional arguments) to execute upon subsystem request.
-# The command sftp-server(8) implements the “sftp” file transfer subsystem.
-# Alternately the name “internal-sftp” implements an in-process “sftp” server.
-# This may simplify configurations using ChrootDirectory to force a different filesystem root on clients.
-# (Default: (str) "")
-Subsystem sftp internal-sftp
+{% for name, command in ssh_server__subsystems.iteritems() %}
+Subsystem {{ name }} {{ command }}
+{% endfor %}
 
 
 
@@ -311,9 +295,3 @@ Match {{ entry.match }}
 {%     endfor %}
 {%   endif %}
 {% endfor %}
-
-
-# Forces the execution of the command specified by ForceCommand, ignoring any command supplied by the client and ~/.ssh/rc if present.
-# This applies to shell, command, or subsystem execution.
-# Specifying a command of “internal-sftp" will force the use of an in-process sftp server that requires no support files when used with ChrootDirectory.
-#ForceCommand

@@ -553,6 +553,11 @@ ssh_server__print_last_log: True
 # The ChrootDirectory must contain the necessary files and directories to support the user's session.
 ssh_server__chroot_directory: none
 
+# Forces the execution of the command specified by ForceCommand, ignoring any command supplied by the client and ~/.ssh/rc if present.
+# This applies to shell, command, or subsystem execution.
+# Specifying a command of “internal-sftp" will force the use of an in-process sftp server that requires no support files when used with ChrootDirectory.
+#ssh_server__force_command:
+
 # Number of seconds after which if no data has been received from the client, sshd(8) will send a message to request a response from the client.
 ssh_server__client_alive_interval: 0
 
@@ -560,10 +565,50 @@ ssh_server__client_alive_interval: 0
 # If it is reached sshd will disconnect the client, terminating the session.
 ssh_server__client_alive_count_max: 3
 
-
-
+## X11 FORWARDING
+# ------------------------------
 # Enable or disable X11 forwarding by the server.
 ssh_server__x11_forwarding: False
+
+# The first display number available for X11 forwarding.
+ssh_server__x11_display_offset: 10
+
+# If sshd should bind the X11 forwarding server to the loopback address or to the wildcard address.
+# By default, sshd binds the forwarding server to the loopback address and sets the hostname part of the DISPLAY environment variable to “localhost”.
+# This prevents remote hosts from connecting to the proxy display. However, some older X11 clients may not function with this configuration.
+# X11UseLocalhost may be set to “no” to specify that the forwarding server should be bound to the wildcard address.
+ssh_server__x11_use_localhost: True
+
+# Specifies the full pathname of the xauth(1) program.
+#ssh_server__xauth_location:
+
+
+### Subsystems
+# ----------------------------
+# Configures an external subsystem (e.g. file transfer daemon).
+# Arguments should be a subsystem name and a command (with optional arguments) to execute upon subsystem request.
+# The command sftp-server(8) implements the “sftp” file transfer subsystem.
+# Alternately the name “internal-sftp” implements an in-process “sftp” server.
+# This may simplify configurations using ChrootDirectory to force a different filesystem root on clients.
+
+# This variable is intended to be used in Ansible’s global inventory.
+ssh_server__subsystems_default:
+  sftp: internal-sftp
+
+# This variable is intended to be used in Ansible’s global inventory.
+ssh_server__subsystems_global: {}
+
+# This variable is intended to be used in Ansible’s group var file.
+ssh_server__subsystems_group: {}
+
+# This variable is intended to be used in Ansible’s host var file.
+ssh_server__subsystems_host: {}
+
+# # Combine all subsystems lists
+ssh_server__subsystems: '{{ ssh_server__subsystems_host|
+                              combine(ssh_server__subsystems_group)|
+                              combine(ssh_server__subsystems_global)|
+                              combine(ssh_server__subsystems_default) }}'
 
 
 
