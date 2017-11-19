@@ -14,6 +14,10 @@ PidFile "{{ ssh_server__pidfile }}"
 Protocol {{ ssh_server__protocol }}
 UsePrivilegeSeparation {{ macros.stringOrBool(ssh_server__privilege_separation) }}
 
+## LOGGING
+SyslogFacility {{ ssh_server__log_facility }}
+LogLevel {{ ssh_server__log_level }}
+
 
 
 ### NETWORK SECTION
@@ -209,7 +213,7 @@ MaxAuthTries {{ ssh_server__max_auth_tries|int }}
 MaxSessions {{ ssh_server__max_sessions|int }}
 MaxStartups {{ ssh_server__max_startups.start~':'~ssh_server__max_startups.rate~':'~ssh_server__max_startups.full if ssh_server__max_startups is mapping else ssh_server__max_startups }}
 
-## User session
+## User environment
 AcceptEnv {{ ssh_server__accept_env|unique|join(' ') }}
 PermitUserEnvironment {{ macros.bool(ssh_server__permit_user_environment) }}
 {% if _ssh_server__version|version_compare(6.7, '>=') %}
@@ -218,16 +222,18 @@ PermitUserRC {{ macros.bool(ssh_server__permit_user_rc) }}
 PermitTTY {{ macros.bool(ssh_server__permit_tty) }}
 StrictModes {{ macros.bool(ssh_server__strict_modes) }}
 
-## Greeting options
+## Greeting
+{% if _ssh_server__version|version_compare(6.1, '>=') and ssh_server__version_addendum is defined %}
+VersionAddendum {{ ssh_server__version_addendum }}
+{% endif %}
 Banner {{ ssh_server__banner }}
 {% if ansible_os_family == 'Debian' %}
 DebianBanner {{ macros.bool(ssh_server__debian_banner) }}
 {% endif %}
+
 PrintMotd {{ macros.bool(ssh_server__print_motd) }}
 PrintLastLog {{ macros.bool(ssh_server__print_last_log) }}
 
-# Additional text to append to the SSH protocol banner sent by the server upon connection.
-VersionAddendum {{ ansible_hostname }}
 
 
 ### SESSION PARAMETERS
@@ -285,16 +291,7 @@ X11UseLocalhost yes
 
 
 
-### LOGGING
-# The facility code that is used when logging messages from sshd.
-# Values: "DAEMON", "USER", "AUTH", "LOCAL0", "LOCAL1", "LOCAL2", "LOCAL3", "LOCAL4", "LOCAL5", "LOCAL6", "LOCAL7".
-SyslogFacility {{ ssh_server__log_facility }}
 
-# The verbosity level that is used when logging messages.
-# Values: "QUIET", "FATAL", "ERROR", "INFO", "VERBOSE", "DEBUG", "DEBUG1", "DEBUG2", and "DEBUG3".
-# DEBUG and DEBUG1 are equivalent. DEBUG2 and DEBUG3 each specify higher levels of debugging output.
-# Logging with a DEBUG level violates the privacy of users and is not recommended.
-LogLevel {{ ssh_server__log_level }}
 
 
 
@@ -310,41 +307,30 @@ Subsystem sftp internal-sftp
 
 
 ### MATCH SECTION
-# Introduces a conditional block.
-# If all of the criteria on the Match line are satisfied, the keywords on the following lines override those set in the global section of the
-# config file, until either another Match line or the end of the file.
-# If a keyword appears in multiple Match blocks that are satisified, only the first instance of the keyword is applied.
-#
-# The arguments to Match are one or more criteria-pattern pairs or the single token All which matches all criteria.
-# The available criteria are :
-#   - User
-#   - Group
-#   - Host
-#   - LocalAddress
-#   - LocalPort
-#   - Address
-# The match patterns may consist of single entries or comma-separated lists and may use the wildcard and negation operators described in the PATTERNS section.
-# The patterns in an Address criteria may additionally contain addresses to match in CIDR address/masklen format, e.g. “192.0.2.0/24” or “3ffe:ffff::/32”.
-# Note that the mask length provided must be consistent with the address -
-#    it is an error to specify a mask length that is too long for the address or one with bits set in this host portion of the address.
-# For example, “192.0.2.0/33” and “192.0.2.0/8” respectively.
-# Only a subset of keywords may be used on the lines following a Match keyword.
-# Available keywords are AcceptEnv, AllowAgentForwarding, AllowGroups, AllowTcpForwarding, AllowUsers,
-#   AuthenticationMethods, AuthorizedKeysCommand, AuthorizedKeysCommandUser, AuthorizedKeysFile, AuthorizedPrincipalsFile,
-#   Banner, ChrootDirectory, DenyGroups, DenyUsers, ForceCommand, GatewayPorts, GSSAPIAuthentication, HostbasedAuthentication,
-#   HostbasedUsesNameFromPacketOnly, KbdInteractiveAuthentication, KerberosAuthentication, MaxAuthTries, MaxSessions,
-#   PasswordAuthentication, PermitEmptyPasswords, PermitOpen, PermitRootLogin, PermitTTY, PermitTunnel, PermitUserRC,
-#   PubkeyAuthentication, RekeyLimit, RhostsRSAAuthentication, RSAAuthentication, X11DisplayOffset, X11Forwarding and X11UseLocalHost.
 {% for entry in ssh_server__match_list|d([]) %}
-{%   if entry.match is defined and entry.options is defined %}
 Match {{ entry.match }}
-{%     if entry.options is string %}
-{{ entry.options | indent(2, true) }}
-{%     else %}
-{%       for opt in entry.options %}
-{{ opt | indent(2, true) }}
-{%       endfor %}
-{%     endif %}
+{# OPTIONS IS A SIMPLE STRING #}
+{%   if entry.options is string %}
+{{ entry.options|indent(2, true) }}
+{# OPTIONS IS A LIST OF STRING OR DICT #}
+{%   else %}
+{%     for opt in entry.options %}
+{# OPTION IS A DICT #}
+{%       if opt is mapping %}
+{%         set matched_value = [] %}
+{%         for version, value in opt.iteritems() %}
+{%           if matched_value|length == 0 and _ssh_server__version|version_compare(version, '>=') %}
+{%             set _ = matched_value.append(value) %}
+{%           endif %}
+{%         endfor %}
+{%         if matched_value|length == 1 %}
+{{           matched_value|join('')|indent(2, true) }}
+{%         endif %}
+{# OPTION IS A STRING #}
+{%       else %}
+{{         opt|indent(2, true) }}
+{%       endif %}
+{%     endfor %}
 {%   endif %}
 {% endfor %}
 

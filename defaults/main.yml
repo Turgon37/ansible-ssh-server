@@ -34,6 +34,15 @@ ssh_server__privilege_separation: True
 # Specifies the file that contains the process ID of the SSH daemon.
 ssh_server__pidfile: /var/run/sshd.pid
 
+# The facility code that is used when logging messages from sshd.
+# Values: "DAEMON", "USER", "AUTH", "LOCAL0", "LOCAL1", "LOCAL2", "LOCAL3", "LOCAL4", "LOCAL5", "LOCAL6", "LOCAL7".
+ssh_server__log_facility: 'AUTH'
+
+# The verbosity level that is used when logging messages.
+# Values: "QUIET", "FATAL", "ERROR", "INFO", "VERBOSE", "DEBUG", "DEBUG1", "DEBUG2", and "DEBUG3".
+# DEBUG and DEBUG1 are equivalent. DEBUG2 and DEBUG3 each specify higher levels of debugging output.
+# Logging with a DEBUG level violates the privacy of users and is not recommended.
+ssh_server__log_level: 'INFO'
 
 
 ### NETWORK SECTION
@@ -512,6 +521,9 @@ ssh_server__strict_modes: True
 
 ## Greeting options
 # ------------------------------
+# Additional text to append to the SSH protocol banner sent by the server upon connection.
+#ssh_server__version_addendum:
+
 # The contents of the specified file are sent to the remote user before authentication is allowed.
 ssh_server__banner: 'none'
 
@@ -526,60 +538,44 @@ ssh_server__print_last_log: True
 
 
 
-
-
-# How much information should be logged by ``sshd`` server.
-ssh_server__log_level: 'INFO'
-
-# With which faciity the SSHD will log
-ssh_server__log_facility: 'AUTH'
-
-
-
-
-
-
-
-
 # Enable or disable X11 forwarding by the server.
 ssh_server__x11_forwarding: 'no'
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Match conditional blocks
+### Match conditional blocks
 # ----------------------------
+# List of conditional Match blocks to include
+# If all of the criteria on the Match line are satisfied, the keywords on the following lines override those set in the global section of the
+# config file, until either another Match line or the end of the file.
+# If a keyword appears in multiple Match blocks that are satisified, only the first instance of the keyword is applied.
+# Each match rule must have the required parameters:
+#
+#  match : the arguments to Match are one or more criteria-pattern pairs or the single token All which matches all criteria.
+#     The available criteria are :
+#        - User
+#        - Group
+#        - Host
+#        - LocalAddress
+#        - LocalPort
+#        - Address
+#     The match patterns may consist of single entries or comma-separated lists and may use the wildcard and negation operators described in the PATTERNS section.
+#     The patterns in an Address criteria may additionally contain addresses to match in CIDR address/masklen format, e.g. “192.0.2.0/24” or “3ffe:ffff::/32”.
+#     Note that the mask length provided must be consistent with the address -
+#        it is an error to specify a mask length that is too long for the address or one with bits set in this host portion of the address.
+#     For example, “192.0.2.0/33” and “192.0.2.0/8” respectively.
+#  options : List of settings to apply
 
-# List of conditional ``Match`` blocks to include in ``sshd_config``.
-# Required parameters:
-#
-# - ``match``: specify User, Group, or other Match arguments which should
-#   activate a given configuration block.
-#
-# - ``options``: YAML text block which contains :manpage:`sshd_config(5)` options
-#   active in a given Match block.
-#
+# Only a subset of keywords may be used on the lines following a Match keyword.
+# Available keywords are AcceptEnv, AllowAgentForwarding, AllowGroups, AllowTcpForwarding, AllowUsers,
+#   AuthenticationMethods, AuthorizedKeysCommand, AuthorizedKeysCommandUser, AuthorizedKeysFile, AuthorizedPrincipalsFile,
+#   Banner, ChrootDirectory, DenyGroups, DenyUsers, ForceCommand, GatewayPorts, GSSAPIAuthentication, HostbasedAuthentication,
+#   HostbasedUsesNameFromPacketOnly, KbdInteractiveAuthentication, KerberosAuthentication, MaxAuthTries, MaxSessions,
+#   PasswordAuthentication, PermitEmptyPasswords, PermitOpen, PermitRootLogin, PermitTTY, PermitTunnel, PermitUserRC,
+#   PubkeyAuthentication, RekeyLimit, RhostsRSAAuthentication, RSAAuthentication, X11DisplayOffset, X11Forwarding and X11UseLocalHost.
+
+
 # This variable is intended to be used in Ansible’s global inventory.
 ssh_server__match_list_global: []
 
@@ -590,15 +586,15 @@ ssh_server__match_list_group: []
 ssh_server__match_list_host: []
 
 # # Combine all match lists
-ssh_server__match_list: '{{ ssh_server__match_list_host|union(ssh_server__match_list_group)|union(ssh_server__match_list_global) }}'
+ssh_server__match_list: '{{ ssh_server__match_list_host|
+                              union(ssh_server__match_list_group)|
+                              union(ssh_server__match_list_global) }}'
 
-
-# Default ``Match`` conditional block which defines configuration for SFTPonly
-# accounts.
+# Default ``Match`` conditional block which defines configuration for SFTPonly accounts.
 ssh_server__match_group_sftponly:
   match: 'Group sftponly'
   options: |
-    AuthorizedKeysFile {{ sshd__authorized_keys_system | join(' ') }}
+    AuthorizedKeysFile {{ ssh_server__authorized_keys_system|join(' ') }}
     ChrootDirectory %h
     X11Forwarding no
     AllowAgentForwarding no
