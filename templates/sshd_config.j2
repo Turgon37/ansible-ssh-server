@@ -183,9 +183,7 @@ GSSAPIEnablek5users {{ macros.bool(ssh_server__gssapi_enable_k5_users) }}
 
 
 ### AUTHORIZATION
-# User-based access control
-# ------------------------------
-
+## User-based access control
 {% if ssh_server__deny_users|d([])|length > 0 %}
 DenyUsers {{ ssh_server__deny_users|unique|join(' ') }}
 {% endif %}
@@ -193,6 +191,7 @@ DenyUsers {{ ssh_server__deny_users|unique|join(' ') }}
 AllowUsers {{ ssh_server__allow_users|unique|join(' ') }}
 {% endif %}
 
+## Group-based access control
 {% if ssh_server__deny_groups|d([])|length > 0 %}
 DenyGroups {{ ssh_server__deny_groups|unique|join(' ') }}
 {% endif %}
@@ -204,76 +203,28 @@ PermitRootLogin {{ macros.stringOrBool(ssh_server__permit_root_login) }}
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-### CLIENT CONNECTION PARAMETERS
-## Login spec
-# The server disconnects after this time if the user has not successfully logged in. If 0, there is no time limit.
+### LOGIN
 LoginGraceTime {{ ssh_server__login_grace_time }}
-
-# Specifies the maximum number of authentication attempts permitted per connection.
 MaxAuthTries {{ ssh_server__max_auth_tries|int }}
+MaxSessions {{ ssh_server__max_sessions|int }}
+MaxStartups {{ ssh_server__max_startups.start~':'~ssh_server__max_startups.rate~':'~ssh_server__max_startups.full if ssh_server__max_startups is mapping else ssh_server__max_startups }}
 
-# Specifies the maximum number of open sessions permitted per network connection.
-# (Default: (int) 10)
-MaxSessions 5
-
-# sshd will refuse connection attempts with a probability of “rate/100” (Default : 30%) if there are currently “start” (Default : 10) unauthenticated connections.
-# The probability increases linearly and all connection attempts are refused if the number of unauthenticated connections reaches “full” (Default : 60).
-# Values “start:rate:full”.
-# (Default: (str) "10:30:100")
-MaxStartups  {{ ssh_server__max_startups }}
-
-# What environment variables sent by the client will be copied into the session's environ.
-# Variables are specified by name, which may contain the wildcard characters ‘*’ and ‘?’.
-# Multiple environment variables may be separated by whitespace or spread across multiple AcceptEnv directives.
-# (Default: (str) "")
-AcceptEnv {{ (ssh_server__accept_env | d([]) | list) | unique | join(" ") }}
-
-# If ~/.ssh/environment and environment= options in ~/.ssh/authorized_keys are processed by sshd.
-# Enabling environment processing may enable users to bypass access restrictions in some configurations using mechanisms such as LD_PRELOAD.
-# (Default: (bool) no)
-PermitUserEnvironment no
-
+## User session
+AcceptEnv {{ ssh_server__accept_env|unique|join(' ') }}
+PermitUserEnvironment {{ macros.bool(ssh_server__permit_user_environment) }}
 {% if _ssh_server__version|version_compare(6.7, '>=') %}
-# Specifies whether any ~/.ssh/rc file is executed
-# (Default: (bool) yes)
-PermitUserRC no
+PermitUserRC {{ macros.bool(ssh_server__permit_user_rc) }}
 {% endif %}
-
-# Specifies whether pty(4) allocation is permitted.
-# (Default: (bool) yes)
-#PermitTTY yes
-
-# If sshd should check file modes and ownership of the user's files and home directory before accepting login.
-# Note: for ChrootDirectory permissions and owner ship are checked unconditionally.
-StrictModes {{ 'yes'|bool|ternary('yes', 'no') }}
-
+PermitTTY {{ macros.bool(ssh_server__permit_tty) }}
+StrictModes {{ macros.bool(ssh_server__strict_modes) }}
 
 ## Greeting options
-# The contents of the specified file are sent to the remote user before authentication is allowed.
-# (Default: (str) "none")
 Banner {{ ssh_server__banner }}
-
 {% if ansible_os_family == 'Debian' %}
-# Specifies whether the distribution-specified extra version suffix is included during initial protocol handshake.
-DebianBanner no
+DebianBanner {{ macros.bool(ssh_server__debian_banner) }}
 {% endif %}
-
-# If sshd should print /etc/motd when a user logs in interactively.
-PrintMotd {{ ssh_server__print_motd|d('no') }}
-
-# If sshd should print the date and time of the last user login when a user logs in interactively.
-PrintLastLog {{ ssh_server__print_last_log|d('yes') }}
+PrintMotd {{ macros.bool(ssh_server__print_motd) }}
+PrintLastLog {{ macros.bool(ssh_server__print_last_log) }}
 
 # Additional text to append to the SSH protocol banner sent by the server upon connection.
 VersionAddendum {{ ansible_hostname }}

@@ -436,6 +436,7 @@ ssh_server__gssapi_enable_k5_users: False
 
 
 ### AUTHORIZATION
+# ------------------------------
 # The allow/deny directives are processed in the following order: DenyUsers, AllowUsers, DenyGroups, and finally AllowGroups.
 
 ## User-based access control
@@ -458,12 +459,70 @@ ssh_server__deny_groups: []
 ssh_server__allow_groups: []
 
 ## Root user access control
+# ------------------------------
 # Specifies whether root can log in using ssh.
 # Values: "yes", "without-password", "forced-commands-only", or "no".
 #   - "without-password", password authentication is disabled for root.
 #   - "forced-commands-only", root login with public key authentication will be allowed, but only if the command option has been specified.
 #   - "no", root is not allowed to log in.
 ssh_server__permit_root_login: "{{ 'prohibit-password' if _ssh_server__version|version_compare(7.0, '>=') else True }}"
+
+
+### LOGIN
+# ------------------------------
+# Time after which unauthenticated sessions are disconnected.
+ssh_server__login_grace_time: '120s'
+
+# Maximum number of failed authentication attempts allowed by the server.
+ssh_server__max_auth_tries: '4'
+
+# Specifies the maximum number of open sessions permitted per network connection.
+ssh_server__max_sessions: 10
+
+# sshd will refuse connection attempts with a probability of “rate/100” (Default : 30%) if there are currently “start” (Default : 10) unauthenticated connections.
+# The probability increases linearly and all connection attempts are refused if the number of unauthenticated connections reaches “full”.
+# Values “start:rate:full” or a dict with keys start:10, rate:full
+ssh_server__max_startups:
+  start: 10
+  rate: 30
+  full: 100
+
+## User session
+# ------------------------------
+# What environment variables sent by the client will be copied into the session's environ.
+# Variables are specified by name, which may contain the wildcard characters ‘*’ and ‘?’.
+# Multiple environment variables may be separated by whitespace or spread across multiple AcceptEnv directives.
+ssh_server__accept_env:
+  - 'LANG'
+  - 'LC_*'
+
+# If ~/.ssh/environment and environment= options in ~/.ssh/authorized_keys are processed by sshd.
+# Enabling environment processing may enable users to bypass access restrictions in some configurations using mechanisms such as LD_PRELOAD.
+ssh_server__permit_user_environment: False
+
+# Specifies whether any ~/.ssh/rc file is executed
+ssh_server__permit_user_rc: True
+
+# Specifies whether pty(4) allocation is permitted.
+ssh_server__permit_tty: True
+
+# If sshd should check file modes and ownership of the user's files and home directory before accepting login.
+# Note: for ChrootDirectory permissions and owner ship are checked unconditionally.
+ssh_server__strict_modes: True
+
+## Greeting options
+# ------------------------------
+# The contents of the specified file are sent to the remote user before authentication is allowed.
+ssh_server__banner: 'none'
+
+# Specifies whether the distribution-specified extra version suffix is included during initial protocol handshake.
+ssh_server__debian_banner: False
+
+# If sshd should print /etc/motd when a user logs in interactively.
+ssh_server__print_motd: True
+
+# If sshd should print the date and time of the last user login when a user logs in interactively.
+ssh_server__print_last_log: True
 
 
 
@@ -485,28 +544,11 @@ ssh_server__log_facility: 'AUTH'
 # Enable or disable X11 forwarding by the server.
 ssh_server__x11_forwarding: 'no'
 
-# Maximum number of failed authentication attempts allowed by the server.
-ssh_server__max_auth_tries: '4'
 
-# Maximum number of unauthenticated connections (3), after which there's 80%
-# probability of next unauthenticated connection to be dropped, finishing at 7,
-# after which all new unauthenticated connections will be refused.
-ssh_server__max_startups: '3:80:7'
 
-# Time after which unauthenticated sessions are disconnected.
-ssh_server__login_grace_time: '20s'
 
-# Path to file which should be displayed before user authentication.
-ssh_server__banner: 'none'
 
-# If sshd should print /etc/motd when a user logs in interactively.
-ssh_server__print_motd: 'no'
 
-# If sshd should print the date and time of the last user login when a user logs in interactively.
-ssh_server__print_last_log: 'yes'
-
-# List of environments variable that the server will accept to load
-ssh_server__accept_env: [ 'LANG', 'LC_*' ]
 
 
 
