@@ -119,6 +119,11 @@ ssh_server__ip_qos: ["lowdelay", "throughput"]
 # oldest. Newer version supersedes older version.
 ssh_server__kex_algorithms_map:
 
+  '7.4':
+    - 'curve25519-sha256'
+    - 'curve25519-sha256@libssh.org'
+    - 'diffie-hellman-group-exchange-sha256'
+
   # Source : https://stribika.github.io/2015/01/04/secure-secure-shell.html
   '6.6':
     - 'curve25519-sha256@libssh.org'
@@ -175,6 +180,14 @@ ssh_server__ciphers_additional: []
 # by the ``sshd`` server, depending on available version, ordered from stronger
 # to weaker. Newer version supersedes older version.
 ssh_server__macs_map:
+
+  '7.6':
+    - 'hmac-sha2-512-etm@openssh.com'
+    - 'hmac-sha2-256-etm@openssh.com'
+    - 'umac-128-etm@openssh.com'
+    - 'hmac-sha2-512'
+    - 'hmac-sha2-256'
+    - 'umac-128@openssh.com'
 
   # Source : https://stribika.github.io/2015/01/04/secure-secure-shell.html
   '6.6':
@@ -235,6 +248,7 @@ ssh_server__host_keys_types_map:
     - 'ecdsa'
     - 'rsa'
   '6.0':
+    - 'ecdsa'
     - 'rsa'
 
 # Mapping of hostkey size
@@ -421,7 +435,35 @@ ssh_server__gssapi_store_credentials_on_rekey: False
 ssh_server__gssapi_enable_k5_users: False
 
 
+### AUTHORIZATION
+# The allow/deny directives are processed in the following order: DenyUsers, AllowUsers, DenyGroups, and finally AllowGroups.
 
+## User-based access control
+# ------------------------------
+# Only user names are valid; a numerical user ID is not recognized.
+# This keyword can be followed by a list of user name patterns, separated by spaces.
+# If the pattern takes the form USER@HOST then USER and HOST are separately checked, restricting logins to particular users from particular hosts.
+# Login is disallowed for user names that match one of the patterns.  Only user names are valid; a numerical user ID is not recognized.
+ssh_server__deny_users: []
+# If specified, login is allowed only for user names that match one of the patterns.
+ssh_server__allow_users: []
+
+## Group-based access control
+# ------------------------------
+# Only group names are valid; a numerical group ID is not recognized.
+# This keyword can be followed by a list of group name patterns, separated by spaces.
+# Login is disallowed for users whose primary group or supplementary group list matches one of the patterns.
+ssh_server__deny_groups: []
+# If specified, login is allowed only for users whose primary group or supplementary group list matches one of the patterns.
+ssh_server__allow_groups: []
+
+## Root user access control
+# Specifies whether root can log in using ssh.
+# Values: "yes", "without-password", "forced-commands-only", or "no".
+#   - "without-password", password authentication is disabled for root.
+#   - "forced-commands-only", root login with public key authentication will be allowed, but only if the command option has been specified.
+#   - "no", root is not allowed to log in.
+ssh_server__permit_root_login: "{{ 'prohibit-password' if _ssh_server__version|version_compare(7.0, '>=') else True }}"
 
 
 
@@ -432,10 +474,6 @@ ssh_server__log_level: 'INFO'
 
 # With which faciity the SSHD will log
 ssh_server__log_facility: 'AUTH'
-
-# Specify if access to ``root`` account should be granted. By default ``root``
-# can be accessed only using SSH public keys.
-ssh_server__permit_root_login: 'no'
 
 
 
@@ -482,13 +520,7 @@ ssh_server__accept_env: [ 'LANG', 'LC_*' ]
 
 
 
-# Group-based access control
-# ------------------------------
 
-
-# List of UNIX groups which allow connections to SSH service (global).
-ssh_server__allow_groups: []
-ssh_server__deny_groups: []
 
 
 

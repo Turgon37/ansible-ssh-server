@@ -49,10 +49,8 @@ IPQoS {{ ssh_server__ip_qos[0] }} {{ ssh_server__ip_qos[1] }}
 
 ### Encryption parameters
 {% set _ssh_server__tpl_kex_algorithms = [] %}
-{% set _ssh_server__tpl_kex_algorithms_match = False %}
 {% for key, value in ssh_server__kex_algorithms_map.iteritems() %}
-{%   if not _ssh_server__tpl_kex_algorithms_match and _ssh_server__version|version_compare(key, '>=') %}
-{%     set _ssh_server__tpl_kex_algorithms_match = True %}
+{%   if _ssh_server__tpl_kex_algorithms|length == 0 and _ssh_server__version|version_compare(key, '>=') %}
 {%     for element in value %}
 {%       set _ = _ssh_server__tpl_kex_algorithms.append(element) %}
 {%     endfor %}
@@ -64,10 +62,8 @@ KexAlgorithms {{ _ssh_server__tpl_kex_algorithms|join(",") }}
 {% endif %}
 
 {% set _ssh_server__tpl_ciphers = [] %}
-{% set _ssh_server__tpl_ciphers_match = False %}
 {% for key, value in ssh_server__ciphers_map.iteritems() %}
-{%   if not _ssh_server__tpl_ciphers_match and _ssh_server__version | version_compare(key, '>=') %}
-{%     set _ssh_server__tpl_ciphers_match = True %}
+{%   if _ssh_server__tpl_ciphers|length == 0 and _ssh_server__version|version_compare(key, '>=') %}
 {%     for element in value %}
 {%       set _ = _ssh_server__tpl_ciphers.append(element) %}
 {%     endfor %}
@@ -79,10 +75,8 @@ Ciphers {{ _ssh_server__tpl_ciphers|join(",") }}
 {% endif %}
 
 {% set _ssh_server__tpl_macs = [] %}
-{% set _ssh_server__tpl_macs_match = False %}
 {% for key, value in ssh_server__macs_map.iteritems() %}
-{%   if not _ssh_server__tpl_macs_match and _ssh_server__version | version_compare(key, '>=') %}
-{%     set _ssh_server__tpl_macs_match = True %}
+{%   if _ssh_server__tpl_macs|length == 0 and _ssh_server__version|version_compare(key, '>=') %}
 {%     for element in value %}
 {%       set _ = _ssh_server__tpl_macs.append(element) %}
 {%     endfor %}
@@ -188,54 +182,25 @@ GSSAPIEnablek5users {{ macros.bool(ssh_server__gssapi_enable_k5_users) }}
 
 
 
+### AUTHORIZATION
+# User-based access control
+# ------------------------------
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### AUTHORIZED USERS
-## USER AND GROUP NAMES
-# The allow/deny directives are processed in the following order: DenyUsers, AllowUsers, DenyGroups, and finally AllowGroups.
-
-{% if false %}
-# Only user names are valid; a numerical user ID is not recognized.
-# This keyword can be followed by a list of user name patterns, separated by spaces.
-# If the pattern takes the form USER@HOST then USER and HOST are separately checked, restricting logins to particular users from particular hosts.
-# Login is disallowed for user names that match one of the patterns.  Only user names are valid; a numerical user ID is not recognized.
-#DenyUsers
-# If specified, login is allowed only for user names that match one of the patterns.
-#AllowUsers
+{% if ssh_server__deny_users|d([])|length > 0 %}
+DenyUsers {{ ssh_server__deny_users|unique|join(' ') }}
+{% endif %}
+{% if ssh_server__allow_users|d([])|length > 0 %}
+AllowUsers {{ ssh_server__allow_users|unique|join(' ') }}
 {% endif %}
 
-{% if ssh_server__deny_groups|d([])|length %}
-# Only group names are valid; a numerical group ID is not recognized.
-# This keyword can be followed by a list of group name patterns, separated by spaces.
-# Login is disallowed for users whose primary group or supplementary group list matches one of the patterns.
-#DenyGroups
+{% if ssh_server__deny_groups|d([])|length > 0 %}
+DenyGroups {{ ssh_server__deny_groups|unique|join(' ') }}
 {% endif %}
-{% if ssh_server__allow_groups|d([])|length %}
-# If specified, login is allowed only for users whose primary group or supplementary group list matches one of the patterns.
-AllowGroups {{ (ssh_server__allow_groups|d([]) | list) | unique | join(" ") }}
+{% if ssh_server__allow_groups|d([])|length > 0 %}
+AllowGroups {{ ssh_server__allow_groups|unique|join(' ') }}
 {% endif %}
 
-# Specifies whether root can log in using ssh.
-# Values: "yes", "without-password", "forced-commands-only", or "no".
-#   -"without-password", password authentication is disabled for root.
-#   -"forced-commands-only", root login with public key authentication will be allowed, but only if the command option has been specified.
-#   -"no", root is not allowed to log in.
-PermitRootLogin {{ ssh_server__permit_root_login|d(True)|bool|ternary('yes', 'no') }}
+PermitRootLogin {{ macros.stringOrBool(ssh_server__permit_root_login) }}
 
 
 
