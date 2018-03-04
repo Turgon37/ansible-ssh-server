@@ -269,7 +269,7 @@ Subsystem {{ name }} {{ command }}
 
 
 ### MATCH SECTION
-{% for entry in ssh_server__match_list|d([]) %}
+{% for entry in ssh_server__match_list|d([]) if entry.state|d('present') == 'present' %}
 Match {{ entry.match }}
 {# OPTIONS IS A SIMPLE STRING #}
 {%   if entry.options is string %}
