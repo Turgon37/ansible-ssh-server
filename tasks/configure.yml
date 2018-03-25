@@ -8,7 +8,7 @@
 
 - name: Setup /etc/ssh/sshd_config
   template:
-    src:   'sshd_config.j2'
+    src:   sshd_config.j2
     dest:  '{{ ssh_server_config_dir }}/sshd_config'
     owner: root
     group: root

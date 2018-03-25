@@ -14,7 +14,7 @@
   set_fact:
     ssh_server__host_keys_types: '{{ item.value }}'
   with_dict: '{{ ssh_server__host_keys_types_map }}'
-  when: ssh_server__host_keys_types is not defined and _ssh_server__version|version_compare(item.key, '>=')
+  when: ssh_server__host_keys_types is not defined and _ssh_server__version is version_compare(item.key, '>=')
 
 - name: Remove default host keys
   file:
@@ -48,4 +48,4 @@
   set_fact:
     ssh_server__host_keys: '{{ ssh_server__host_keys|d([])|union([item.invocation.module_args.creates]) }}'
   with_items: '{{ _ssh_server__created_host_keys.results }}'
-  when: item|success
+  when: item is success
