@@ -54,7 +54,7 @@ IPQoS {{ ssh_server__ip_qos[0] }} {{ ssh_server__ip_qos[1] }}
 
 ### Encryption parameters
 {% set _ssh_server__tpl_kex_algorithms = [] %}
-{% for key, value in ssh_server__kex_algorithms_map.iteritems() %}
+{% for key, value in ssh_server__kex_algorithms_map|dictsort %}
 {%   if _ssh_server__tpl_kex_algorithms|length == 0 and _ssh_server__version is version_compare(key, '>=') %}
 {%     for element in value %}
 {%       set _ = _ssh_server__tpl_kex_algorithms.append(element) %}
@@ -67,7 +67,7 @@ KexAlgorithms {{ _ssh_server__tpl_kex_algorithms|join(",") }}
 {% endif %}
 
 {% set _ssh_server__tpl_ciphers = [] %}
-{% for key, value in ssh_server__ciphers_map.iteritems() %}
+{% for key, value in ssh_server__ciphers_map|dictsort %}
 {%   if _ssh_server__tpl_ciphers|length == 0 and _ssh_server__version is version_compare(key, '>=') %}
 {%     for element in value %}
 {%       set _ = _ssh_server__tpl_ciphers.append(element) %}
@@ -80,7 +80,7 @@ Ciphers {{ _ssh_server__tpl_ciphers|join(",") }}
 {% endif %}
 
 {% set _ssh_server__tpl_macs = [] %}
-{% for key, value in ssh_server__macs_map.iteritems() %}
+{% for key, value in ssh_server__macs_map|dictsort %}
 {%   if _ssh_server__tpl_macs|length == 0 and _ssh_server__version is version_compare(key, '>=') %}
 {%     for element in value %}
 {%       set _ = _ssh_server__tpl_macs.append(element) %}
@@ -262,7 +262,7 @@ XAuthLocation {{ ssh_server__xauth_location }}
 
 
 ### SUBSYSTEMS
-{% for name, command in ssh_server__subsystems.iteritems() %}
+{% for name, command in ssh_server__subsystems|dictsort %}
 Subsystem {{ name }} {{ command }}
 {% endfor %}
 
@@ -280,7 +280,7 @@ Match {{ entry.match }}
 {# OPTION IS A DICT #}
 {%       if opt is mapping %}
 {%         set matched_value = [] %}
-{%         for version, value in opt.iteritems() %}
+{%         for version, value in opt|dictsort %}
 {%           if matched_value|length == 0 and _ssh_server__version is version_compare(version, '>=') %}
 {%             set _ = matched_value.append(value) %}
 {%           endif %}
