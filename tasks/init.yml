@@ -1,22 +1,10 @@
 ---
 
-- name: Get OpenSSH server version
-  environment:
-    LC_MESSAGES: 'C'
-  shell: '/usr/bin/env sshd -v 2>&1 | grep --only-matching --extended-regexp --regexp="OpenSSH_[a-z0-9\.]+"'
-  register: _ssh_server__version_raw
-  changed_when: False
-  check_mode: no
-
-- name: Format OpenSSH server version
-  set_fact:
-    _ssh_server__version: "{{ _ssh_server__version_raw.stdout|regex_replace('^OpenSSH_([0-9]+\\.[0-9]+).*', '\\1') }}"
-
 - name: Check if banner file exists
   stat:
     path: '{{ ssh_server__banner }}'
-  register: _ssh_server__banner_file
   when: ssh_server__banner != 'none'
+  register: _ssh_server__banner_file
 
 - name: Assert banner file exists
   fail:

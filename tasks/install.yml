@@ -2,5 +2,6 @@
 
 - name: Install SSH server
   package:
-    name: openssh-server
+    name:  '{{ item }}'
     state: present
+  with_items: '{{ ssh_server__packages_names }}'

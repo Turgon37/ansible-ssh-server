@@ -6,19 +6,31 @@ ssh_server__role: True
 # Enable facts deploiement
 ssh_server__facts: True
 
-ssh_server_config_dir: /etc/ssh
+
+### SERVICE CONFIGURATION
+# ---------------------------------------
 
 # the name of the ssh service
 ssh_server__service_name: sshd
 
+# If true the ssh service will be started and enabled
+ssh_server__service_enabled: True
+
+# The main configuration directory
+ssh_server_config_dir: /etc/ssh
+
+### INSTALL CONFIGURATION
+# ---------------------------------------
+ssh_server__packages_names:
+  - openssh-server
+
 # Specify minimum size of Diffie-Hellman parameters available to the SSH
 # server. Parameters smaller than the given amount will be removed from the
 # :file:`/etc/ssh/moduli` file.
-ssh_server__moduli_minimum: '4096'
+ssh_server__moduli_minimum: 4096
 
 
-# ---------------------------------------
-# SSHD settings
+### SERVER CONFIGURATION
 # ---------------------------------------
 
 ### GENERAL SECTION
@@ -36,20 +48,20 @@ ssh_server__pidfile: /var/run/sshd.pid
 
 # The facility code that is used when logging messages from sshd.
 # Values: "DAEMON", "USER", "AUTH", "LOCAL0", "LOCAL1", "LOCAL2", "LOCAL3", "LOCAL4", "LOCAL5", "LOCAL6", "LOCAL7".
-ssh_server__log_facility: 'AUTH'
+ssh_server__log_facility: AUTH
 
 # The verbosity level that is used when logging messages.
 # Values: "QUIET", "FATAL", "ERROR", "INFO", "VERBOSE", "DEBUG", "DEBUG1", "DEBUG2", and "DEBUG3".
 # DEBUG and DEBUG1 are equivalent. DEBUG2 and DEBUG3 each specify higher levels of debugging output.
 # Logging with a DEBUG level violates the privacy of users and is not recommended.
-ssh_server__log_level: 'INFO'
+ssh_server__log_level: INFO
 
 
 ### NETWORK SECTION
 # ---------------------------------------
 # List of ports which ``sshd`` will listen on.
 ssh_server__ports:
-  - '22'
+  - 22
 
 # List of IP addresses on which ``sshd`` should listen for new connections. If
 # it's empty, ``sshd`` listens on all interfaces.
@@ -120,7 +132,7 @@ ssh_server__compression: delayed
 # The default is “lowdelay” for interactive sessions and “throughput” for non-interactive sessions.
 # Values: "af11", "af12", "af13", "af21", "af22", "af23", "af31", "af32", "af33", "af41", "af42", "af43", "cs0", "cs1",
 #  "cs2", "cs3", "cs4", "cs5", "cs6", "cs7", "ef", "lowdelay", "throughput", "reliability", or a numeric value.
-ssh_server__ip_qos: ["lowdelay", "throughput"]
+ssh_server__ip_qos: ['lowdelay', 'throughput']
 
 
 
@@ -347,7 +359,7 @@ ssh_server__authorized_keys_user:
 #ssh_server__authorized_keys_command:
 
 # Specifies the user under whose account the AuthorizedKeysCommand is run.
-ssh_server__authorized_keys_command_user: 'nobody'
+ssh_server__authorized_keys_command_user: nobody
 
 # Specifies a file that lists principal names that are accepted for certificate authentication.
 # When using certificates signed by a key listed in TrustedUserCAKeys, this file lists names,
@@ -660,7 +672,7 @@ ssh_server__match_list: '{{ ssh_server__match_list_host|
 
 # Default ``Match`` conditional block which defines configuration for SFTPonly accounts.
 ssh_server__match_group_sftponly:
-  match: 'Group sftponly'
+  match: Group sftponly
   options: |
     AuthorizedKeysFile {{ ssh_server__authorized_keys_system|join(' ') }}
     ChrootDirectory %h

@@ -1,7 +1,7 @@
 ---
 
-- name: Enable SSH daemon at boot
+- name: Ensure ssh server is started and enabled on boot
   service:
-    name: '{{ ssh_server__service_name }}'
-    enabled: yes
-    state: started
+    name:    '{{ ssh_server__service_name }}'
+    enabled: '{{ ssh_server__service_enabled|bool }}'
+    state:   "{{ ssh_server__service_enabled|bool|ternary('started', 'stopped') }}"

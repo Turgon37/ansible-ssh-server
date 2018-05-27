@@ -1,5 +1,18 @@
 ---
 
+- name: Get OpenSSH server version
+  environment:
+    LC_MESSAGES: 'C'
+  shell: '/usr/bin/env sshd -v 2>&1 | grep --perl-regexp --only-matching --regexp="(?<=OpenSSH_)[0-9\.]+"'
+  when: ansible_local.ssh_server is not defined
+  register: _ssh_server__version_raw
+  changed_when: False
+  check_mode: False
+
+- name: Create _ssh_server__version variable
+  set_fact:
+    _ssh_server__version: "{{ _ssh_server__version_raw.stdout if _ssh_server__version_raw is not skipped else ansible_local.ssh_server.version_full }}"
+
 - import_tasks: configure-hostkeys.yml
   tags: ['ssh-server', 'ssh-server-configure-hostkeys']
 
