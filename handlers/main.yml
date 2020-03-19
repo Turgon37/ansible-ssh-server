@@ -2,10 +2,11 @@
 # handlers file for ssh-server
 
 - name: test-and-restart-sshd
-  command: sshd -t
-  notify: [ 'restart-sshd' ]
+  command: '/usr/bin/env sshd -t -f {{ ssh_server__config_file }}'
+  check_mode: false
+  notify: ['restart-ssh-server']
 
-- name: restart-sshd
+- name: restart-ssh-server
   service:
     name: '{{ ssh_server__service_name }}'
     state: restarted

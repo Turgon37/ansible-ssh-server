@@ -1,13 +1,17 @@
 ---
 
-- name: "Check if {{ ssh_server_config_dir }}/moduli contains weak DH parameters"
-  shell: "awk '$5 < {{ ssh_server__moduli_minimum }}' {{ ssh_server_config_dir }}/moduli"
+- name: 'Check if {{ ssh_server__config_dir }}/moduli contains weak DH parameters'
+  shell: >
+    awk '$5 < {{ ssh_server__moduli_minimum }}' {{ ssh_server__config_dir }}/moduli
   register: _ssh_server__moduli
   changed_when: _ssh_server__moduli.stdout
-  check_mode: no
+  check_mode: false
 
 - name: Remove DH parameters smaller than the requested size
-  shell: "awk '$5 >= {{ ssh_server__moduli_minimum }}' {{ ssh_server_config_dir }}/moduli > {{ ssh_server_config_dir }}/moduli.new;
-         [ -r {{ ssh_server_config_dir }}/moduli.new -a -s {{ ssh_server_config_dir }}/moduli.new ] && mv {{ ssh_server_config_dir }}/moduli.new {{ ssh_server_config_dir }}/moduli || true"
-  notify: [ 'test-and-restart-sshd' ]
+  shell: >-
+    awk '$5 >= {{ ssh_server__moduli_minimum }}' {{ ssh_server__config_dir }}/moduli > {{ ssh_server__config_dir }}/moduli.new;
+    [ -r {{ ssh_server__config_dir }}/moduli.new -a -s {{ ssh_server__config_dir }}/moduli.new ]
+    && mv {{ ssh_server__config_dir }}/moduli.new {{ ssh_server__config_dir }}/moduli
+    || true
+  notify: ['test-and-restart-sshd']
   when: _ssh_server__moduli.stdout

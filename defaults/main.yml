@@ -1,23 +1,9 @@
 ---
 # defaults file for ssh-server
 
-# Simple placeholder to allow other roles to detect this role
-ssh_server__role: True
 # Enable facts deploiement
-ssh_server__facts: True
+ssh_server__facts: true
 
-
-### SERVICE CONFIGURATION
-# ---------------------------------------
-
-# the name of the ssh service
-ssh_server__service_name: sshd
-
-# If true the ssh service will be started and enabled
-ssh_server__service_enabled: True
-
-# The main configuration directory
-ssh_server_config_dir: /etc/ssh
 
 ### INSTALL CONFIGURATION
 # ---------------------------------------
@@ -28,6 +14,21 @@ ssh_server__packages_names:
 # server. Parameters smaller than the given amount will be removed from the
 # :file:`/etc/ssh/moduli` file.
 ssh_server__moduli_minimum: 4096
+
+
+### SERVICE CONFIGURATION
+# ---------------------------------------
+
+# the name of the ssh service
+ssh_server__service_name: sshd
+
+# If true the ssh service will be started and enabled
+ssh_server__service_enabled: true
+
+# The main configuration directory
+ssh_server__config_dir: /etc/ssh
+
+ssh_server__config_file: '{{ ssh_server__config_dir }}/sshd_config'
 
 
 ### SERVER CONFIGURATION
@@ -41,7 +42,7 @@ ssh_server__protocol: 2
 # If sshd(8) separates privileges by creating an unprivileged child process to deal with incoming network traffic.
 # After successful authentication, another process will be created that has the privilege of the authenticated user.
 # If it is set to "sandbox" then the pre-authentication unprivileged process is subject to additional restrictions.
-ssh_server__privilege_separation: True
+ssh_server__privilege_separation: true
 
 # Specifies the file that contains the process ID of the SSH daemon.
 ssh_server__pidfile: /var/run/sshd.pid
@@ -78,21 +79,21 @@ ssh_server__listen: ['0.0.0.0']
 ssh_server__address_family: 'any'
 
 # If sshd should look up the remote host name and check that the resolved host name for the remote IP address maps back to the very same IP address.
-ssh_server__use_dns: True
+ssh_server__use_dns: true
 
 # If the system should send TCP keepalive messages to the other side.
 # If they are sent, death of the connection or crash of one of the machines will be properly noticed.
 # If they are not, sessions may hang indefinitely on the server, leaving “ghost” users and consuming server resources.
-ssh_server__tcp_keepalive: True
+ssh_server__tcp_keepalive: true
 
 # Specifies whether ssh-agent forwarding is permitted.
-# Values 'yes'/'all' to allow, 'no' to prevent, 'local' to allow only local, 'remote' to allow only remote
-ssh_server__allow_agent_forwarding: True
+# Values 'yes'/'all' to allow, 'no' to prevent, 'local' to allow only local, 'remote' to allow only remote
+ssh_server__allow_agent_forwarding: true
 
 # Specifies whether TCP forwarding is permitted.
-# Values 'yes'/'all' to allow, 'no' to prevent, 'local' to allow only local, 'remote' to allow only remote
+# Values 'yes'/'all' to allow, 'no' to prevent, 'local' to allow only local, 'remote' to allow only remote
 # (Default: (bool) yes)
-ssh_server__allow_tcp_forwarding: True
+ssh_server__allow_tcp_forwarding: true
 
 # Specifies the destinations to which TCP port forwarding is permitted.
 # The forwarding specification must be one of the following forms:
@@ -110,16 +111,16 @@ ssh_server__permit_open: 'any'
 #   - "no" to force remote port forwardings to be available to the local host only
 #   - "yes" to force remote port forwardings to bind to the wildcard address
 #   - "clientspecified" to allow the client to select the address to which the forwarding is bound
-ssh_server__gateway_ports: False
+ssh_server__gateway_ports: false
 
 # Specifies whether StreamLocal (Unix-domain socket) forwarding is permitted
-# Values 'yes'/'all' to allow, 'no' to prevent, 'local' to allow only local, 'remote' to allow only remote
-ssh_server__allow_stream_local_forwarding: True
+# Values 'yes'/'all' to allow, 'no' to prevent, 'local' to allow only local, 'remote' to allow only remote
+ssh_server__allow_stream_local_forwarding: true
 
 # If tun device forwarding is allowed.
 # Values: "yes", "point-to-point" (layer 3), "ethernet" (layer 2), or "no".
 # Specifying “yes" permits both "point-to-point" and "ethernet".
-ssh_server__permit_tunnel: False
+ssh_server__permit_tunnel: false
 
 # If compression is allowed, or delayed until the user has authenticated successfully.
 # Values: "yes", "delayed", or "no".
@@ -133,7 +134,6 @@ ssh_server__compression: delayed
 # Values: "af11", "af12", "af13", "af21", "af22", "af23", "af31", "af32", "af33", "af41", "af42", "af43", "cs0", "cs1",
 #  "cs2", "cs3", "cs4", "cs5", "cs6", "cs7", "ef", "lowdelay", "throughput", "reliability", or a numeric value.
 ssh_server__ip_qos: ['lowdelay', 'throughput']
-
 
 
 ### Encryption parameters
@@ -255,7 +255,7 @@ ssh_server__key_regeneration_interval: 3600
 
 # Specifies a file containing a public host certificate.
 # The certificate's public key must match a private host key already specified by HostKey.
-#ssh_server__host_certificate:
+# ssh_server__host_certificate:
 
 # List of SSH host keys that should be enabled, in order of preference.
 # Specifies a file containing a private host key used by SSH. It is possible to have multiple host key files.
@@ -281,11 +281,11 @@ ssh_server__host_keys_types_map:
 ssh_server__host_keys_types_bits_map:
   rsa: 2048
   dsa: 1024
-  ecdsa: 384 #256, 521
+  ecdsa: 384  # 256, 521
 
 # If you want, you can manually set the host key that will be used
 # If you dont declare the following variable, It will be generate by using the map above
-#ssh_server__host_keys_types: []
+# ssh_server__host_keys_types: []
 
 # (Do not touch) Prefix to apply on hostkey basename
 ssh_server__host_keys_file_prefix: ssh_host_
@@ -301,37 +301,37 @@ ssh_server__authentication_methods: publickey password
 # If set to “yes” this will enable PAM authentication using ChallengeResponseAuthentication and PasswordAuthentication
 # If you just want the PAM account and session checks to run without PAM authentication,
 # then enable this but set PasswordAuthentication and ChallengeResponseAuthentication to 'no'.
-ssh_server__use_pam: False
+ssh_server__use_pam: false
 
 # If login is used for interactive login sessions.
 # Note that login(1) is never used for remote command execution.
-ssh_server__use_login: False
+ssh_server__use_login: false
 
 
 ## Password authentication
 # ---------------------------------------
 # Enable or disable password authentication.
-ssh_server__password_authentication: True
+ssh_server__password_authentication: true
 
 # When password authentication is allowed, it specifies whether the server allows login to accounts with empty password strings.
-ssh_server__permit_empty_passwords: False
+ssh_server__permit_empty_passwords: false
 
 
 ## ChallengeResponse Authentication
 # ---------------------------------------
 # If challenge-response authentication is allowed
-ssh_server__challenge_response_authentication: True
+ssh_server__challenge_response_authentication: true
 
 
 ## Keyboard Interactive authentifiaction
 # ---------------------------------------
-ssh_server__keyboard_interactive_authentication: True
+ssh_server__keyboard_interactive_authentication: true
 
 
 ## PubKey authentication
 # ---------------------------------------
 # Enable or disable Public Key authentication.
-ssh_server__pubkey_authentication: True
+ssh_server__pubkey_authentication: true
 
 # Specifies the file that contains the public keys that can be used for user authentication.
 # The following tokens are defined:
@@ -356,7 +356,7 @@ ssh_server__authorized_keys_user:
 # The program must be owned by root and not writable
 # by group or others.  It will be invoked with a single argument of the username being authenticated,
 # and should produce on standard output zero or more lines of authorized_keys output
-#ssh_server__authorized_keys_command:
+# ssh_server__authorized_keys_command:
 
 # Specifies the user under whose account the AuthorizedKeysCommand is run.
 ssh_server__authorized_keys_command_user: nobody
@@ -374,91 +374,91 @@ ssh_server__authorized_keys_command_user: nobody
 # In case of no file specified, the username of the user must appear in a certificate's principals list for it to be accepted.
 # Note that AuthorizedPrincipalsFile is only used when authentication proceeds using a CA listed in TrustedUserCAKeys and is not
 # consulted for certification authorities trusted via ~/.ssh/authorized_keys, though the principals= key option offers a similar facility.
-#ssh_server__authorized_principals_file:
+# ssh_server__authorized_principals_file:
 
 # Specifies a file containing public keys of certificate authorities that are trusted to sign user certificates for authentication.
 # Keys are listed one per line; empty lines and comments starting with ‘#’ are allowed.
 # If a certificate is presented for authentication and has its signing CA key listed in this file, then it may be used for authen‐
 # tication for any user listed in the certificate's principals list.
 # Note that certificates that lack a list of principals will not be permitted for authentication using TrustedUserCAKeys.
-#ssh_server__trusted_user_ca_keys:
+# ssh_server__trusted_user_ca_keys:
 
 # Specifies a list of revoked public keys.  Keys listed in this file will be refused for public key authentication.
 # Note that if this file is not readable, then public key authentication will be refused for all users.
-#ssh_server__revoked_keys:
+# ssh_server__revoked_keys:
 
 # If sshd should allow keys recorded in its blacklist of known-compromised keys.
 # If “yes", authentication with compromised keys will be logged but accepted.
 # If “no",  authentication with compromised keys will be rejected.
-ssh_server__permit_blacklisted_keys: False
+ssh_server__permit_blacklisted_keys: false
 
 ## RSA authentication
 # ---------------------------------------
 # Protocol 1
 # If pure RSA authentication is allowed.
-ssh_server__rsa_authentication: False
+ssh_server__rsa_authentication: false
 
 # If rhosts or /etc/hosts.equiv authentication together with successful RSA host authentication is allowed.
-ssh_server__rhosts_rsa_authentication: False
+ssh_server__rhosts_rsa_authentication: false
 
 ## Hostbased authentication
 # ---------------------------------------
 # Protocol 2
 # If rhosts or /etc/hosts.equiv authentication together with successful public key client host authentication is allowed.
-ssh_server__host_based_authentication: False
+ssh_server__host_based_authentication: false
 
 # If the server will make a reverse name lookup when matching the name in the ~/.shosts, ~/.rhosts, and /etc/hosts.equiv
 # files during HostbasedAuthentication. If “yes” sshd uses the name supplied by the client rather than attempting to resolve
 # the name from the TCP connection itself.
-ssh_server__host_based_uses_name_from_packet_only: False
+ssh_server__host_based_uses_name_from_packet_only: false
 
 # Specifies whether sshd should ignore the user's ~/.ssh/known_hosts during RhostsRSAAuthentication or HostbasedAuthentication.
-ssh_server__ignore_user_known_hosts: False
+ssh_server__ignore_user_known_hosts: false
 
 # Specifies that .rhosts and .shosts files will not be used in RhostsRSAAuthentication or HostbasedAuthentication.
 # /etc/hosts.equiv and /etc/ssh/shosts.equiv are still used.
-ssh_server__ignore_rhosts: True
+ssh_server__ignore_rhosts: true
 
 
 ## Kerberos authentication
 # ---------------------------------------
 # If password provided by the user for PasswordAuthentication will be validated through the Kerberos KDC.
-ssh_server__kerberos_authentication: False
+ssh_server__kerberos_authentication: false
 
 # If AFS is active and the user has a Kerberos 5 TGT, attempt to acquire an AFS token before accessing the user's home directory.
-ssh_server__kerberos_get_afs_token: False
+ssh_server__kerberos_get_afs_token: false
 
 # If password authentication through Kerberos fails then the password will be validated via any additional local mechanism such as /etc/passwd.
-ssh_server__kerberos_or_local_passwd: True
+ssh_server__kerberos_or_local_passwd: true
 
 # If to automatically destroy the user's ticket cache file on logout.
-ssh_server__kerberos_ticket_cleanup: True
+ssh_server__kerberos_ticket_cleanup: true
 
 # Specifies whether to look at .k5login file for user's aliases.
-ssh_server__kerberos_use_kuserok: True
+ssh_server__kerberos_use_kuserok: true
 
 
 ## GSSAPI authentication
 # ---------------------------------------
 # If user authentication based on GSSAPI is allowed. (Protocol 2)
-ssh_server__gssapi_authentication: False
+ssh_server__gssapi_authentication: false
 
 # If key exchange based on GSSAPI is allowed. GSSAPI key exchange doesn't rely on ssh keys to verify host identity. (Protocol 2)
-ssh_server__gssapi_key_exchange: False
+ssh_server__gssapi_key_exchange: false
 
 # If to automatically destroy the user's credentials cache on logout. (Protocol 2)
-ssh_server__gssapi_cleanup_credentials: True
+ssh_server__gssapi_cleanup_credentials: true
 
 # Determines whether to be strict about the identity of the GSSAPI acceptor a client authenticates against.
 # If "yes" then the client must authenticate against the host service on the current hostname.
 # If "no" then the client may authenticate against any service key stored in the machine's default store.
-ssh_server__gssapi_strict_acceptor_check: True
+ssh_server__gssapi_strict_acceptor_check: true
 
 # Controls if the user's GSSAPI credentials should be updated following a successful connection rekeying.
-ssh_server__gssapi_store_credentials_on_rekey: False
+ssh_server__gssapi_store_credentials_on_rekey: false
 
-#Specifies whether to look at .k5users file for GSSAPI authentication access control. Further details are described in ksu(1).
-ssh_server__gssapi_enable_k5_users: False
+# Specifies whether to look at .k5users file for GSSAPI authentication access control. Further details are described in ksu(1).
+ssh_server__gssapi_enable_k5_users: false
 
 
 ### AUTHORIZATION
@@ -491,7 +491,7 @@ ssh_server__allow_groups: []
 #   - "without-password", password authentication is disabled for root.
 #   - "forced-commands-only", root login with public key authentication will be allowed, but only if the command option has been specified.
 #   - "no", root is not allowed to log in.
-ssh_server__permit_root_login: "{{ 'prohibit-password' if _ssh_server__version|version_compare(7.0, '>=') else True }}"
+ssh_server__permit_root_login: "{{ 'prohibit-password' if _ssh_server__version|version_compare(7.0, '>=') else true }}"
 
 
 ### LOGIN
@@ -524,34 +524,34 @@ ssh_server__accept_env:
 
 # If ~/.ssh/environment and environment= options in ~/.ssh/authorized_keys are processed by sshd.
 # Enabling environment processing may enable users to bypass access restrictions in some configurations using mechanisms such as LD_PRELOAD.
-ssh_server__permit_user_environment: False
+ssh_server__permit_user_environment: false
 
 # Specifies whether any ~/.ssh/rc file is executed
-ssh_server__permit_user_rc: True
+ssh_server__permit_user_rc: true
 
 # Specifies whether pty(4) allocation is permitted.
-ssh_server__permit_tty: True
+ssh_server__permit_tty: true
 
 # If sshd should check file modes and ownership of the user's files and home directory before accepting login.
 # Note: for ChrootDirectory permissions and owner ship are checked unconditionally.
-ssh_server__strict_modes: True
+ssh_server__strict_modes: true
 
 ## Greeting options
 # ------------------------------
 # Additional text to append to the SSH protocol banner sent by the server upon connection.
-#ssh_server__version_addendum:
+# ssh_server__version_addendum:
 
 # The contents of the specified file are sent to the remote user before authentication is allowed.
 ssh_server__banner: 'none'
 
 # Specifies whether the distribution-specified extra version suffix is included during initial protocol handshake.
-ssh_server__debian_banner: False
+ssh_server__debian_banner: false
 
 # If sshd should print /etc/motd when a user logs in interactively.
-ssh_server__print_motd: True
+ssh_server__print_motd: true
 
 # If sshd should print the date and time of the last user login when a user logs in interactively.
-ssh_server__print_last_log: True
+ssh_server__print_last_log: true
 
 ## Session options
 # ------------------------------
@@ -568,7 +568,7 @@ ssh_server__chroot_directory: none
 # Forces the execution of the command specified by ForceCommand, ignoring any command supplied by the client and ~/.ssh/rc if present.
 # This applies to shell, command, or subsystem execution.
 # Specifying a command of “internal-sftp" will force the use of an in-process sftp server that requires no support files when used with ChrootDirectory.
-#ssh_server__force_command:
+# ssh_server__force_command:
 
 # Number of seconds after which if no data has been received from the client, sshd(8) will send a message to request a response from the client.
 ssh_server__client_alive_interval: 0
@@ -580,7 +580,7 @@ ssh_server__client_alive_count_max: 3
 ## X11 FORWARDING
 # ------------------------------
 # Enable or disable X11 forwarding by the server.
-ssh_server__x11_forwarding: False
+ssh_server__x11_forwarding: false
 
 # The first display number available for X11 forwarding.
 ssh_server__x11_display_offset: 10
@@ -589,10 +589,10 @@ ssh_server__x11_display_offset: 10
 # By default, sshd binds the forwarding server to the loopback address and sets the hostname part of the DISPLAY environment variable to “localhost”.
 # This prevents remote hosts from connecting to the proxy display. However, some older X11 clients may not function with this configuration.
 # X11UseLocalhost may be set to “no” to specify that the forwarding server should be bound to the wildcard address.
-ssh_server__x11_use_localhost: True
+ssh_server__x11_use_localhost: true
 
 # Specifies the full pathname of the xauth(1) program.
-#ssh_server__xauth_location:
+# ssh_server__xauth_location:
 
 
 ### Subsystems
@@ -621,7 +621,6 @@ ssh_server__subsystems: '{{ ssh_server__subsystems_host|
                               combine(ssh_server__subsystems_group)|
                               combine(ssh_server__subsystems_global)|
                               combine(ssh_server__subsystems_default) }}'
-
 
 
 ### Match conditional blocks

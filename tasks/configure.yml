@@ -3,28 +3,36 @@
 - name: Get OpenSSH server version
   environment:
     LC_MESSAGES: 'C'
-  shell: '/usr/bin/env sshd -v 2>&1 | grep --perl-regexp --only-matching --regexp="(?<=OpenSSH_)[0-9\.]+"'
-  when: ansible_local.ssh_server is not defined
+  shell: >-
+    /usr/bin/env sshd -v 2>&1
+    | grep --perl-regexp --only-matching --regexp="(?<=OpenSSH_)[0-9\.]+"
+  when: ansible_local.ssh_server.version_full is not defined
   register: _ssh_server__version_raw
-  changed_when: False
-  check_mode: False
+  changed_when: false
+  check_mode: false
 
 - name: Create _ssh_server__version variable
   set_fact:
-    _ssh_server__version: "{{ _ssh_server__version_raw.stdout if _ssh_server__version_raw is not skipped else ansible_local.ssh_server.version_full }}"
+    _ssh_server__version: '{{
+        _ssh_server__version_raw.stdout
+        if _ssh_server__version_raw is not skipped
+        else ansible_local.ssh_server.version_full
+      }}'
 
-- import_tasks: configure-hostkeys.yml
-  tags: ['ssh-server', 'ssh-server-configure-hostkeys']
+- name: Importing host keys tasks
+  import_tasks: configure-hostkeys.yml
+  tags: ['ssh-server', 'ssh-server-configure', 'ssh-server-configure-hostkeys']
 
-- import_tasks: configure-moduli.yml
-  tags: ['ssh-server', 'ssh-server-configure-moduli']
+- name: Importing moduli tasks
+  import_tasks: configure-moduli.yml
+  tags: ['ssh-server', 'ssh-server-configure', 'ssh-server-configure-moduli']
 
 - name: Setup /etc/ssh/sshd_config
   template:
-    src:   sshd_config.j2
-    dest:  '{{ ssh_server_config_dir }}/sshd_config'
+    src: sshd_config.j2
+    dest: '{{ ssh_server__config_file }}'
     owner: root
     group: root
-    mode:  0640
-    validate: 'sshd -t -f %s'
-  notify: [ 'test-and-restart-sshd' ]
+    mode: 0640
+    validate: '/usr/bin/env sshd -t -f %s'
+  notify: ['test-and-restart-sshd']

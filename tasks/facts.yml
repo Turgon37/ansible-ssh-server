@@ -2,16 +2,16 @@
 
 - name: Create custom fact directory
   file:
-    path:  "{{ facts__dir|d('/etc/ansible/facts.d') }}"
+    path: "{{ facts__dir|d('/etc/ansible/facts.d') }}"
     owner: root
     group: root
-    mode:  0755
+    mode: 0755
     state: directory
   tags: ['ssh-server', 'ssh-server-facts']
 
 - name: Insert custom fact file
   copy:
-    src:  files/ssh_server.fact.py
+    src: files/ssh_server.fact.py
     dest: "{{ facts__dir|d('/etc/ansible/facts.d') }}/ssh_server.fact"
     mode: 0755
   tags: ['ssh-server', 'ssh-server-facts']
