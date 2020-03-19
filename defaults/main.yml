@@ -28,7 +28,11 @@ ssh_server__service_enabled: true
 # The main configuration directory
 ssh_server__config_dir: /etc/ssh
 
+# The main configuration file
 ssh_server__config_file: '{{ ssh_server__config_dir }}/sshd_config'
+
+# Optional path to service's environment variables
+# ssh_server__service_environment:
 
 
 ### SERVER CONFIGURATION

@@ -1,0 +1,3 @@
+{{ ansible_managed|comment(decoration='# ') }}
+# Options to pass to sshd
+SSHD_OPTS='-f {{ ssh_server__config_file }}'

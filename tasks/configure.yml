@@ -36,3 +36,13 @@
     mode: 0640
     validate: '/usr/bin/env sshd -t -f %s'
   notify: ['test-and-restart-sshd']
+
+- name: Configure service environment variables
+  template:
+    src: sshd.environment.j2
+    dest: '{{ ssh_server__service_environment }}'
+    owner: root
+    group: root
+    mode: 0640
+  when: ssh_server__service_environment is defined
+  notify: ['test-and-restart-sshd']
