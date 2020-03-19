@@ -498,7 +498,11 @@ ssh_server__allow_groups: []
 #   - "without-password", password authentication is disabled for root.
 #   - "forced-commands-only", root login with public key authentication will be allowed, but only if the command option has been specified.
 #   - "no", root is not allowed to log in.
-ssh_server__permit_root_login: "{{ 'prohibit-password' if _ssh_server__version|version_compare(7.0, '>=') else true }}"
+ssh_server__permit_root_login: "{{
+    'prohibit-password'
+    if _ssh_server__version is version_compare(7.0, '>=')
+    else true
+  }}"
 
 
 ### LOGIN
