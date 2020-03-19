@@ -343,7 +343,10 @@ ssh_server__pubkey_authentication: true
 #   - %h is replaced by the home directory of the user being authenticated
 #   - %u is replaced by the username of that user.
 # Multiple files may be listed, separated by whitespace.
-ssh_server__authorized_keys: '{{ sshd__authorized_keys_system|union(sshd__authorized_keys_user) }}'
+ssh_server__authorized_keys: '{{
+    ssh_server__authorized_keys_system
+    |union(ssh_server__authorized_keys_user)
+  }}'
 
 # List of system-wide files containing SSH public keys. These files are
 # expected to be maintained by system administrator and might be used in
