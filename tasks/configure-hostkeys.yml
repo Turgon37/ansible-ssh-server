@@ -38,7 +38,7 @@
     ssh-keygen -q {% if item in ssh_server__host_keys_types_bits_map %} -b {{ ssh_server__host_keys_types_bits_map[item] }} {% endif %}
     -t {{ item }}
     -N ""
-    -f {{ ssh_server__config_dir }}/{{ ssh_server__host_keys_file_prefix }}{{item }}{{ ssh_server__host_keys_file_suffix }}
+    -f {{ ssh_server__config_dir }}/{{ ssh_server__host_keys_file_prefix }}{{ item }}{{ ssh_server__host_keys_file_suffix }}
   args:
     creates: '{{ ssh_server__config_dir }}/{{ ssh_server__host_keys_file_prefix }}{{ item }}{{ ssh_server__host_keys_file_suffix }}'
   with_items: '{{ ssh_server__host_keys_types }}'

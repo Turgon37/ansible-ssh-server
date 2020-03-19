@@ -1,6 +1,7 @@
 ---
 
 - name: Get OpenSSH server version
+  # noqa 306
   environment:
     LC_MESSAGES: 'C'
   shell: >-
