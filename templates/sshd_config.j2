@@ -239,18 +239,18 @@ Match {{ entry.match }}
 {# OPTIONS IS A SIMPLE STRING #}
 {%   if entry.options is string %}
 {{ entry.options|indent(2, true) }}
-{# OPTIONS IS A LIST OF STRING OR DICT #}
+{# OPTIONS IS A LIST OF (STRING OR DICT) #}
 {%   else %}
 {%     for opt in entry.options %}
 {# OPTION IS A DICT #}
 {%       if opt is mapping %}
 {%         set matched_value = [] %}
 {%         for version, value in opt|dictsort %}
-{%           if matched_value|length == 0 and _ssh_server__version is version_compare(version, '>=') %}
+{%           if not matched_value and _ssh_server__version is version_compare(version, '>=') %}
 {%             set _ = matched_value.append(value) %}
 {%           endif %}
 {%         endfor %}
-{%         if matched_value|length == 1 %}
+{%         if matched_value %}
 {{           matched_value|join('')|indent(2, true) }}
 {%         endif %}
 {# OPTION IS A STRING #}

@@ -143,7 +143,7 @@ ssh_server__ip_qos: ['lowdelay', 'throughput']
 ### Encryption parameters
 # -------------------------
 
-# Build a default list of Kex algorithms
+# Build the default list of Kex algorithms
 ssh_server__kex_algorithms: "\
   {% set algs = [] -%}
   {% for version, algorithms in ssh_server__kex_algorithms_map|dictsort(reverse=true) -%}
@@ -188,7 +188,7 @@ ssh_server__kex_algorithms_map:
 ssh_server__kex_algorithms_additional: []
 
 
-# Build a default list of Kex algorithms
+# Build the default list of ciphers algorithms
 ssh_server__ciphers: "\
   {% set ciphs = [] -%}
   {% for version, ciphers in ssh_server__ciphers_map|dictsort(reverse=true) -%}
@@ -226,6 +226,7 @@ ssh_server__ciphers_map:
 ssh_server__ciphers_additional: []
 
 
+# Build the default list of Macs algorithms
 ssh_server__macs: "\
   {% set macs = [] -%}
   {% for version, _macs in ssh_server__macs_map|dictsort(reverse=true) -%}
@@ -542,7 +543,7 @@ ssh_server__permit_root_login: "{{
 ssh_server__login_grace_time: '120s'
 
 # Maximum number of failed authentication attempts allowed by the server.
-ssh_server__max_auth_tries: '4'
+ssh_server__max_auth_tries: 4
 
 # Specifies the maximum number of open sessions permitted per network connection.
 ssh_server__max_sessions: 10
@@ -659,10 +660,12 @@ ssh_server__subsystems_group: {}
 ssh_server__subsystems_host: {}
 
 # # Combine all subsystems lists
-ssh_server__subsystems: '{{ ssh_server__subsystems_host|
-                              combine(ssh_server__subsystems_group)|
-                              combine(ssh_server__subsystems_global)|
-                              combine(ssh_server__subsystems_default) }}'
+ssh_server__subsystems: '{{
+    ssh_server__subsystems_host
+    |combine(ssh_server__subsystems_group)
+    |combine(ssh_server__subsystems_global)
+    |combine(ssh_server__subsystems_default)
+  }}'
 
 
 ### Match conditional blocks
@@ -707,9 +710,11 @@ ssh_server__match_list_group: []
 ssh_server__match_list_host: []
 
 # # Combine all match lists
-ssh_server__match_list: '{{ ssh_server__match_list_host|
-                              union(ssh_server__match_list_group)|
-                              union(ssh_server__match_list_global) }}'
+ssh_server__match_list: '{{
+    ssh_server__match_list_host
+    |union(ssh_server__match_list_group)
+    |union(ssh_server__match_list_global)
+  }}'
 
 # Default ``Match`` conditional block which defines configuration for SFTPonly accounts.
 ssh_server__match_group_sftponly:
