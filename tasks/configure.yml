@@ -35,7 +35,8 @@
     owner: root
     group: root
     mode: 0640
-    validate: '/usr/bin/env sshd -t -f %s'
+    validate: >
+      /usr/bin/env sh -c 'mkdir -p /run/sshd && sshd -t -f %s'
   notify: ['test-and-restart-sshd']
 
 - name: Configure service environment variables
