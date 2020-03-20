@@ -12,8 +12,8 @@
       - match: LocalAddress 127.0.0.1
         options:
           - AllowUsers test
-          - 8.2: AuthorizedKeysCommand /bin/true
-            6.0:
+          - 6.0: AuthorizedKeysCommand /bin/true
+            1.0:
               - AuthenticationMethods publickey
               - AllowUsers root
       - '{{ ssh_server__match_group_sftponly }}'
