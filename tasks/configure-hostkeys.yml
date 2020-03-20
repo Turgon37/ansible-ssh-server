@@ -30,7 +30,9 @@
     path: '{{ item }}'
     state: absent
   with_items: "{{ _ssh_server__installed_host_keys.files|map(attribute='path')|list }}"
-  when: item|basename|regex_replace('^'~ssh_server__host_keys_file_prefix~'(.*)'~ssh_server__host_keys_file_suffix~'(\\.pub)?', '\\1') not in ssh_server__host_keys_types
+  when: item
+    |basename
+    |regex_replace('^'~ssh_server__host_keys_file_prefix~'(.*)'~ssh_server__host_keys_file_suffix~'(\\.pub)?', '\\1') not in ssh_server__host_keys_types
   notify: ['test-and-restart-sshd']
 
 - name: Ensure wanted host keys are present
