@@ -29,7 +29,7 @@ AddressFamily "{{ ssh_server__address_family }}"
 ListenAddress {{ address }}
 {% endfor %}
 
-UseDNS {{ macros.bool(ssh_server__use_dns, True) }}
+UseDNS {{ macros.bool(ssh_server__use_dns, true) }}
 TCPKeepAlive {{ macros.bool(ssh_server__tcp_keepalive) }}
 
 AllowAgentForwarding {{ macros.stringOrBool(ssh_server__allow_agent_forwarding) }}
