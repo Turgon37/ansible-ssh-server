@@ -143,6 +143,16 @@ ssh_server__ip_qos: ['lowdelay', 'throughput']
 ### Encryption parameters
 # -------------------------
 
+# Build a default list of Kex algorithms
+ssh_server__kex_algorithms: "\
+  {% set algs = [] -%}
+  {% for version, algorithms in ssh_server__kex_algorithms_map|dictsort(reverse=true) -%}
+  {%   if not algs and _ssh_server__version is version_compare(version, '>=') -%}
+  {%     set _ = algs.extend(algorithms) -%}
+  {%   endif -%}
+  {% endfor -%}
+  {{ algs|union(ssh_server__kex_algorithms_additional)|unique }}"
+
 # Specifies the available KEX (Key Exchange) algorithms. Multiple algorithms must be comma-separated.
 # Dict with list of key exchange algorithms which should be used by the
 # ``sshd`` server, depending on available version, ordered from strongest to
@@ -177,6 +187,17 @@ ssh_server__kex_algorithms_map:
 # version.
 ssh_server__kex_algorithms_additional: []
 
+
+# Build a default list of Kex algorithms
+ssh_server__ciphers: "\
+  {% set ciphs = [] -%}
+  {% for version, ciphers in ssh_server__ciphers_map|dictsort(reverse=true) -%}
+  {%   if not ciphs and _ssh_server__version is version_compare(version, '>=') -%}
+  {%     set _ = ciphs.extend(ciphers) -%}
+  {%   endif -%}
+  {% endfor -%}
+  {{ ciphs|union(ssh_server__ciphers_additional)|unique }}"
+
 # Specifies the ciphers allowed for protocol version 2. Multiple ciphers must be comma-separated.
 # Dict with list of ciphers which should be used by the ``sshd`` server,
 # depending on available version, ordered from strongest to weakest. Newer version
@@ -203,6 +224,16 @@ ssh_server__ciphers_map:
 # version, ordered from stronger to weaker. Newer version supersedes older
 # version.
 ssh_server__ciphers_additional: []
+
+
+ssh_server__macs: "\
+  {% set macs = [] -%}
+  {% for version, _macs in ssh_server__macs_map|dictsort(reverse=true) -%}
+  {%   if not macs and _ssh_server__version is version_compare(version, '>=') -%}
+  {%     set _ = macs.extend(_macs) -%}
+  {%   endif -%}
+  {% endfor -%}
+  {{ macs|union(ssh_server__macs_additional)|unique }}"
 
 # Specifies the available MAC (message authentication code) algorithms.
 # The MAC algorithm is used in protocol version 2 for data integrity protection.
