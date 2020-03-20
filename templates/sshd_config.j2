@@ -246,7 +246,7 @@ Match {{ entry.match }}
 {%       if opt is mapping %}
 {%         set matched_options = [] %}
 {%         set matched_value = [] %}
-{%         for version, value in opt|dictsort %}
+{%         for version, value in opt|dictsort(reverse=true) %}
 {%           if not matched_value and _ssh_server__version is version_compare(version, '>=') %}
 {%             set _ = matched_value.append(true) %}
 {%             set _ = matched_options.extend([value] if value is string else value) %}
