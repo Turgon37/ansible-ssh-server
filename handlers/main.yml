@@ -2,7 +2,9 @@
 # handlers file for ssh-server
 
 - name: test-and-restart-sshd
-  command: '/usr/bin/env sshd -t -f {{ ssh_server__config_file }}'
+  shell: >-
+    /usr/bin/env mkdir -p /run/sshd
+    && /usr/bin/env sshd -t -f {{ ssh_server__config_file }}
   check_mode: false
   notify: ['restart-ssh-server']
 
