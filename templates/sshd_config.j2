@@ -10,7 +10,9 @@
 PidFile "{{ ssh_server__pidfile }}"
 {% endif %}
 Protocol {{ ssh_server__protocol }}
+{% if _ssh_server__version is version_compare(7.5, '<') %}
 UsePrivilegeSeparation {{ macros.stringOrBool(ssh_server__privilege_separation) }}
+{% endif %}
 
 ## LOGGING
 SyslogFacility {{ ssh_server__log_facility }}
