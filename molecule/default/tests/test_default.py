@@ -17,7 +17,10 @@ def test_sshd_conf_content(host):
     conf_content = conf.content
 
     expected = [
-        b'AuthorizedKeysCommand /bin/true'
+      b'Subsystem sftp internal-sftp',
+      b'AuthorizedKeysFile /etc/ssh/authorized_keys/%u %h/.ssh/authorized_keys',
+      b'Match LocalAddress 127.0.0.1\n  AllowUsers test\n  AuthorizedKeysCommand /bin/true',
+      b'Match Group sftponly\n  AuthorizedKeysFile /etc/ssh/authorized_keys/%u\n  ChrootDirectory %h\n  X11Forwarding no',
     ]
 
     for line in expected:
