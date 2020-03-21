@@ -37,96 +37,96 @@ All variables which can be overridden are stored in [defaults/main.yml](defaults
 
 Most of the variables refers to the pure sshd config parameter. Please fetch informations from the man page.
 
-| Name                                                   | Types/Values   | Description                                                       |
-| ------------------------------------------------------ | ---------------|------------------------------------------------------------------ |
-| `ssh_server__facts`                                    | Boolean        | Install the local fact script                                     |
-| `ssh_server__moduli_minimum`                           | Integer        | The minimum size of primes to keep in moduli file                 |
-| `ssh_server__service_enabled`                          | Boolean        | Enable or not the service                                         |
-| `ssh_server__protocol`                                 | String         | See manpage                                                       |
-| `ssh_server__privilege_separation`                     | String         | See manpage                                                       |
-| `ssh_server__pidfile`                                  | String         | See manpage                                                       |
-| `ssh_server__log_facility`                             | String         | See manpage                                                       |
-| `ssh_server__log_level`                                | String         | See manpage                                                       |
-| `ssh_server__ports`                                    | List of integer| See manpage                                                       |
-| `ssh_server__listen`                                   | List of ip     | See manpage                                                       |
-| `ssh_server__address_family`                           | String         | See manpage                                                       |
-| `ssh_server__use_dns`                                  | Boolean        | See manpage                                                       |
-| `ssh_server__tcp_keepalive`                            | Boolean        | See manpage                                                       |
-| `ssh_server__allow_agent_forwarding`                   | Boolean        | See manpage                                                       |
-| `ssh_server__allow_tcp_forwarding`                     | Boolean        | See manpage                                                       |
-| `ssh_server__permit_open`                              | String         | See manpage                                                       |
-| `ssh_server__gateway_ports`                            | String         | See manpage                                                       |
-| `ssh_server__allow_stream_local_forwarding`            | Boolean        | See manpage                                                       |
-| `ssh_server__permit_tunnel`                            | Boolean        | See manpage                                                       |
-| `ssh_server__compression`                              | String         | See manpage                                                       |
-| `ssh_server__ip_qos`                                   | Tuple          | See manpage                                                       |
-| `ssh_server__kex_algorithms`                           | List of string | See manpage                                                       |
-| `ssh_server__kex_algorithms_additional`                | List of string | See manpage                                                       |
-| `ssh_server__ciphers`                                  | List of string | See manpage                                                       |
-| `ssh_server__ciphers_additional`                       | List of string | See manpage                                                       |
-| `ssh_server__macs`                                     | List of string | See manpage                                                       |
-| `ssh_server__macs_additional`                          | List of string | See manpage                                                       |
-| `ssh_server__server_key_bits`                          | Integer        | See manpage                                                       |
-| `ssh_server__key_regeneration_interval`                | Integer        | See manpage                                                       |
-| `ssh_server__authentication_methods`                   | String         | See manpage                                                       |
-| `ssh_server__use_pam`                                  | Boolean        | See manpage                                                       |
-| `ssh_server__use_login`                                | Boolean        | See manpage                                                       |
-| `ssh_server__password_authentication`                  | Boolean        | See manpage                                                       |
-| `ssh_server__permit_empty_passwords`                   | Boolean        | See manpage                                                       |
-| `ssh_server__challenge_response_authentication`        | Boolean        | See manpage                                                       |
-| `ssh_server__keyboard_interactive_authentication`      | Boolean        | See manpage                                                       |
-| `ssh_server__pubkey_authentication`                    | Boolean        | See manpage                                                       |
-| `ssh_server__authorized_keys`                          | List of string | See manpage AuthorizedKeysFile                                    |
-| `ssh_server__authorized_keys_system`                   | List of string | Contains the path to the global system authorized keys file       |
-| `ssh_server__authorized_keys_user`                     | String         | Contains the path to the per user authorized keys file            |
-| `ssh_server__authorized_keys_command`                  | String         | See manpage                                                       |
-| `ssh_server__authorized_keys_command_user`             | List of string | See manpage                                                       |
-| `ssh_server__permit_blacklisted_keys`                  |                | See manpage                                                       |
-| `ssh_server__rsa_authentication`                       | Boolean        | See manpage                                                       |
-| `ssh_server__rhosts_rsa_authentication`                | Boolean        | See manpage                                                       |
-| `ssh_server__host_based_authentication`                | Boolean        | See manpage                                                       |
-| `ssh_server__host_based_uses_name_from_packet_only`    | Boolean        | See manpage                                                       |
-| `ssh_server__ignore_user_known_hosts`                  | Boolean        | See manpage                                                       |
-| `ssh_server__ignore_rhosts`                            | Boolean        | See manpage                                                       |
-| `ssh_server__kerberos_authentication`                  | Boolean        | See manpage                                                       |
-| `ssh_server__kerberos_get_afs_token`                   | Boolean        | See manpage                                                       |
-| `ssh_server__kerberos_or_local_passwd`                 | Boolean        | See manpage                                                       |
-| `ssh_server__kerberos_ticket_cleanup`                  | Boolean        | See manpage                                                       |
-| `ssh_server__kerberos_use_kuserok`                     | Boolean        | See manpage                                                       |
-| `ssh_server__gssapi_authentication`                    | Boolean        | See manpage                                                       |
-| `ssh_server__gssapi_key_exchange`                      | Boolean        | See manpage                                                       |
-| `ssh_server__gssapi_cleanup_credentials`               | Boolean        | See manpage                                                       |
-| `ssh_server__gssapi_strict_acceptor_check`             | Boolean        | See manpage                                                       |
-| `ssh_server__gssapi_store_credentials_on_rekey`        | Boolean        | See manpage                                                       |
-| `ssh_server__gssapi_enable_k5_users`                   | Boolean        | See manpage                                                       |
-| `ssh_server__deny_users`                               | List of string | See manpage                                                       |
-| `ssh_server__allow_users`                              | List of string | See manpage                                                       |
-| `ssh_server__deny_groups`                              | List of string | See manpage                                                       |
-| `ssh_server__allow_groups`                             | List of string | See manpage                                                       |
-| `ssh_server__permit_root_login`                        | String         | See manpage                                                       |
-| `ssh_server__login_grace_time`                         | String         | See manpage                                                       |
-| `ssh_server__max_auth_tries`                           | Integer        | See manpage                                                       |
-| `ssh_server__max_sessions`                             | Integer        | See manpage                                                       |
-| `ssh_server__max_startups`                             | Specific dict  | This dict must have the keys 'start', 'rate', 'full' (See manpage)|
-| `ssh_server__accept_env`                               | List of string | See manpage                                                       |
-| `ssh_server__permit_user_environment`                  | Boolean        | See manpage                                                       |
-| `ssh_server__permit_user_rc`                           | Boolean        | See manpage                                                       |
-| `ssh_server__permit_tty`                               | Boolean        | See manpage                                                       |
-| `ssh_server__strict_modes`                             | Boolean        | See manpage                                                       |
-| `ssh_server__version_addendum`                         | String         | See manpage                                                       |
-| `ssh_server__banner`                                   | String         | See manpage                                                       |
-| `ssh_server__debian_banner`                            | Boolean        | See manpage                                                       |
-| `ssh_server__print_motd`                               | Boolean        | See manpage                                                       |
-| `ssh_server__print_last_log`                           | Boolean        | See manpage                                                       |
-| `ssh_server__force_command`                            | String         | See manpage                                                       |
-| `ssh_server__chroot_directory`                         | String         | See manpage                                                       |
-| `ssh_server__client_alive_interval`                    | Integer        | See manpage                                                       |
-| `ssh_server__client_alive_count_max`                   | Integer        | See manpage                                                       |
-| `ssh_server__x11_forwarding`                           | Boolean        | See manpage                                                       |
-| `ssh_server__x11_display_offset`                       | Integer        | See manpage                                                       |
-| `ssh_server__x11_use_localhost`                        | Boolean        | See manpage                                                       |
-| `ssh_server__subsystems_global/group/host`             | Dict           | Mapping of subsystem name and subsystem command                   |
-| `ssh_server__match_list_global/group/host`             |                |                                                                   |
+| Name                                                   | Types/Values       | Description                                                       |
+| ------------------------------------------------------ | -------------------|------------------------------------------------------------------ |
+| `ssh_server__facts`                                    | Boolean            | Install the local fact script                                     |
+| `ssh_server__moduli_minimum`                           | Integer            | The minimum size of primes to keep in moduli file                 |
+| `ssh_server__service_enabled`                          | Boolean            | Enable or not the service                                         |
+| `ssh_server__protocol`                                 | String             | See manpage                                                       |
+| `ssh_server__privilege_separation`                     | String             | See manpage                                                       |
+| `ssh_server__pidfile`                                  | String             | See manpage                                                       |
+| `ssh_server__log_facility`                             | String             | See manpage                                                       |
+| `ssh_server__log_level`                                | String             | See manpage                                                       |
+| `ssh_server__ports`                                    | List of integer    | See manpage                                                       |
+| `ssh_server__listen`                                   | List of ip         | See manpage                                                       |
+| `ssh_server__address_family`                           | String             | See manpage                                                       |
+| `ssh_server__use_dns`                                  | Boolean            | See manpage                                                       |
+| `ssh_server__tcp_keepalive`                            | Boolean            | See manpage                                                       |
+| `ssh_server__allow_agent_forwarding`                   | Boolean            | See manpage                                                       |
+| `ssh_server__allow_tcp_forwarding`                     | Boolean            | See manpage                                                       |
+| `ssh_server__permit_open`                              | String             | See manpage                                                       |
+| `ssh_server__gateway_ports`                            | String             | See manpage                                                       |
+| `ssh_server__allow_stream_local_forwarding`            | Boolean            | See manpage                                                       |
+| `ssh_server__permit_tunnel`                            | Boolean            | See manpage                                                       |
+| `ssh_server__compression`                              | String             | See manpage                                                       |
+| `ssh_server__ip_qos`                                   | Tuple              | See manpage                                                       |
+| `ssh_server__kex_algorithms`                           | List of string     | See manpage                                                       |
+| `ssh_server__kex_algorithms_additional`                | List of string     | See manpage                                                       |
+| `ssh_server__ciphers`                                  | List of string     | See manpage                                                       |
+| `ssh_server__ciphers_additional`                       | List of string     | See manpage                                                       |
+| `ssh_server__macs`                                     | List of string     | See manpage                                                       |
+| `ssh_server__macs_additional`                          | List of string     | See manpage                                                       |
+| `ssh_server__server_key_bits`                          | Integer            | See manpage                                                       |
+| `ssh_server__key_regeneration_interval`                | Integer            | See manpage                                                       |
+| `ssh_server__authentication_methods`                   | String             | See manpage                                                       |
+| `ssh_server__use_pam`                                  | Boolean            | See manpage                                                       |
+| `ssh_server__use_login`                                | Boolean            | See manpage                                                       |
+| `ssh_server__password_authentication`                  | Boolean            | See manpage                                                       |
+| `ssh_server__permit_empty_passwords`                   | Boolean            | See manpage                                                       |
+| `ssh_server__challenge_response_authentication`        | Boolean            | See manpage                                                       |
+| `ssh_server__keyboard_interactive_authentication`      | Boolean            | See manpage                                                       |
+| `ssh_server__pubkey_authentication`                    | Boolean            | See manpage                                                       |
+| `ssh_server__authorized_keys`                          | List of string     | See manpage AuthorizedKeysFile                                    |
+| `ssh_server__authorized_keys_system`                   | List of string     | Contains the path to the global system authorized keys file       |
+| `ssh_server__authorized_keys_user`                     | String             | Contains the path to the per user authorized keys file            |
+| `ssh_server__authorized_keys_command`                  | String             | See manpage                                                       |
+| `ssh_server__authorized_keys_command_user`             | List of string     | See manpage                                                       |
+| `ssh_server__permit_blacklisted_keys`                  |                    | See manpage                                                       |
+| `ssh_server__rsa_authentication`                       | Boolean            | See manpage                                                       |
+| `ssh_server__rhosts_rsa_authentication`                | Boolean            | See manpage                                                       |
+| `ssh_server__host_based_authentication`                | Boolean            | See manpage                                                       |
+| `ssh_server__host_based_uses_name_from_packet_only`    | Boolean            | See manpage                                                       |
+| `ssh_server__ignore_user_known_hosts`                  | Boolean            | See manpage                                                       |
+| `ssh_server__ignore_rhosts`                            | Boolean            | See manpage                                                       |
+| `ssh_server__kerberos_authentication`                  | Boolean            | See manpage                                                       |
+| `ssh_server__kerberos_get_afs_token`                   | Boolean            | See manpage                                                       |
+| `ssh_server__kerberos_or_local_passwd`                 | Boolean            | See manpage                                                       |
+| `ssh_server__kerberos_ticket_cleanup`                  | Boolean            | See manpage                                                       |
+| `ssh_server__kerberos_use_kuserok`                     | Boolean            | See manpage                                                       |
+| `ssh_server__gssapi_authentication`                    | Boolean            | See manpage                                                       |
+| `ssh_server__gssapi_key_exchange`                      | Boolean            | See manpage                                                       |
+| `ssh_server__gssapi_cleanup_credentials`               | Boolean            | See manpage                                                       |
+| `ssh_server__gssapi_strict_acceptor_check`             | Boolean            | See manpage                                                       |
+| `ssh_server__gssapi_store_credentials_on_rekey`        | Boolean            | See manpage                                                       |
+| `ssh_server__gssapi_enable_k5_users`                   | Boolean            | See manpage                                                       |
+| `ssh_server__deny_users`                               | List of string     | See manpage                                                       |
+| `ssh_server__allow_users`                              | List of string     | See manpage                                                       |
+| `ssh_server__deny_groups`                              | List of string     | See manpage                                                       |
+| `ssh_server__allow_groups`                             | List of string     | See manpage                                                       |
+| `ssh_server__permit_root_login`                        | String             | See manpage                                                       |
+| `ssh_server__login_grace_time`                         | String             | See manpage                                                       |
+| `ssh_server__max_auth_tries`                           | Integer            | See manpage                                                       |
+| `ssh_server__max_sessions`                             | Integer            | See manpage                                                       |
+| `ssh_server__max_startups`                             | Specific dict      | This dict must have the keys 'start', 'rate', 'full' (See manpage)|
+| `ssh_server__accept_env`                               | List of string     | See manpage                                                       |
+| `ssh_server__permit_user_environment`                  | Boolean            | See manpage                                                       |
+| `ssh_server__permit_user_rc`                           | Boolean            | See manpage                                                       |
+| `ssh_server__permit_tty`                               | Boolean            | See manpage                                                       |
+| `ssh_server__strict_modes`                             | Boolean            | See manpage                                                       |
+| `ssh_server__version_addendum`                         | String             | See manpage                                                       |
+| `ssh_server__banner`                                   | String             | See manpage                                                       |
+| `ssh_server__debian_banner`                            | Boolean            | See manpage                                                       |
+| `ssh_server__print_motd`                               | Boolean            | See manpage                                                       |
+| `ssh_server__print_last_log`                           | Boolean            | See manpage                                                       |
+| `ssh_server__force_command`                            | String             | See manpage                                                       |
+| `ssh_server__chroot_directory`                         | String             | See manpage                                                       |
+| `ssh_server__client_alive_interval`                    | Integer            | See manpage                                                       |
+| `ssh_server__client_alive_count_max`                   | Integer            | See manpage                                                       |
+| `ssh_server__x11_forwarding`                           | Boolean            | See manpage                                                       |
+| `ssh_server__x11_display_offset`                       | Integer            | See manpage                                                       |
+| `ssh_server__x11_use_localhost`                        | Boolean            | See manpage                                                       |
+| `ssh_server__subsystems_global/group/host`             | Dict               | Mapping of subsystem name and subsystem command                   |
+| `ssh_server__match_list_global/group/host`             | List of match bloc | Configure match blocs (see below)                                 |
 
 
 ### Matchs
