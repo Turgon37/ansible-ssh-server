@@ -1,3 +1,5 @@
 ---
 
 ssh_server__service_name: ssh
+
+ssh_server__service_environment: /etc/default/ssh

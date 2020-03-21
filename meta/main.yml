@@ -1,16 +1,21 @@
+---
 galaxy_info:
+  role_name: ssh_server
   author: Pierre GINDRAUD
-  description: This role configure SSH daemon
+  description: This role configure SSH server
   license: MIT
   min_ansible_version: 2.4
   platforms:
     - name: Debian
       versions:
-        - 9
-        - 8
-    - name: CentOS
+        - jessie
+        - stretch
+        - buster
+    - name: EL
       versions:
         - 7
-  galaxy_tags: []
+  galaxy_tags:
+    - ssh
+    - client
 
 dependencies: []
