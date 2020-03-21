@@ -7,7 +7,6 @@
       include_role:
         name: ansible-ssh-server
   vars:
-    ssh_server__service_enabled: false
     ssh_server__match_list_global:
       - match: LocalAddress 127.0.0.1
         options:
