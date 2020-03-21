@@ -11,7 +11,7 @@
 
 - name: Insert custom fact file
   copy:
-    src: files/ssh_server.fact.py
+    src: files/ssh_server.facts.py
     dest: "{{ facts__dir|d('/etc/ansible/facts.d') }}/ssh_server.fact"
     mode: 0755
   tags: ['ssh-server', 'ssh-server-facts']
