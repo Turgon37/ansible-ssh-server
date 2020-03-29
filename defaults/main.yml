@@ -25,6 +25,9 @@ ssh_server__service_name: sshd
 # If true the ssh service will be started and enabled
 ssh_server__service_enabled: true
 
+# Path to systemd override directory
+ssh_server__systemd_override_options_dir: '/etc/systemd/system/{{ ssh_server__service_name }}.service.d'
+
 # The main configuration directory
 ssh_server__config_dir: /etc/ssh
 
