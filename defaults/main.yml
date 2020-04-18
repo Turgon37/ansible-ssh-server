@@ -150,7 +150,7 @@ ssh_server__ip_qos: ['lowdelay', 'throughput']
 ssh_server__kex_algorithms: "\
   {% set algs = [] -%}
   {% for version, algorithms in ssh_server__kex_algorithms_map|dictsort(reverse=true) -%}
-  {%   if not algs and _ssh_server__version is version_compare(version, '>=') -%}
+  {%   if not algs and _ssh_server__version is version(version, '>=') -%}
   {%     set _ = algs.extend(algorithms) -%}
   {%   endif -%}
   {% endfor -%}
@@ -195,7 +195,7 @@ ssh_server__kex_algorithms_additional: []
 ssh_server__ciphers: "\
   {% set ciphs = [] -%}
   {% for version, ciphers in ssh_server__ciphers_map|dictsort(reverse=true) -%}
-  {%   if not ciphs and _ssh_server__version is version_compare(version, '>=') -%}
+  {%   if not ciphs and _ssh_server__version is version(version, '>=') -%}
   {%     set _ = ciphs.extend(ciphers) -%}
   {%   endif -%}
   {% endfor -%}
@@ -233,7 +233,7 @@ ssh_server__ciphers_additional: []
 ssh_server__macs: "\
   {% set macs = [] -%}
   {% for version, _macs in ssh_server__macs_map|dictsort(reverse=true) -%}
-  {%   if not macs and _ssh_server__version is version_compare(version, '>=') -%}
+  {%   if not macs and _ssh_server__version is version(version, '>=') -%}
   {%     set _ = macs.extend(_macs) -%}
   {%   endif -%}
   {% endfor -%}
@@ -535,7 +535,7 @@ ssh_server__allow_groups: []
 #   - "no", root is not allowed to log in.
 ssh_server__permit_root_login: "{{
     'prohibit-password'
-    if _ssh_server__version is version_compare(7.0, '>=')
+    if _ssh_server__version is version(7.0, '>=')
     else true
   }}"
 
