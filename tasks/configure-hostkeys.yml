@@ -15,7 +15,7 @@
     ssh_server__host_keys_types: '{{ item.value }}'
   with_dict: '{{ ssh_server__host_keys_types_map }}'
   when: ssh_server__host_keys_types is not defined
-    and _ssh_server__version is version_compare(item.key, '>=')
+    and _ssh_server__version is version(item.key, '>=')
 
 - name: Remove default host keys
   file:

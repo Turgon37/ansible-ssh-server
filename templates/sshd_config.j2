@@ -10,7 +10,7 @@
 PidFile "{{ ssh_server__pidfile }}"
 {% endif %}
 Protocol {{ ssh_server__protocol }}
-{% if _ssh_server__version is version_compare(7.5, '<') %}
+{% if _ssh_server__version is version(7.5, '<') %}
 UsePrivilegeSeparation {{ macros.stringOrBool(ssh_server__privilege_separation) }}
 {% endif %}
 
@@ -38,7 +38,7 @@ AllowTcpForwarding {{ macros.stringOrBool(ssh_server__allow_tcp_forwarding) }}
 PermitOpen "{{ ssh_server__permit_open if ssh_server__permit_open is string else ssh_server__permit_open|join(' ') }}"
 GatewayPorts {{ macros.stringOrBool(ssh_server__gateway_ports) }}
 
-{% if _ssh_server__version is version_compare(6.7, '>=') %}
+{% if _ssh_server__version is version(6.7, '>=') %}
 AllowStreamLocalForwarding {{ macros.stringOrBool(ssh_server__allow_stream_local_forwarding) }}
 {% endif %}
 
@@ -57,7 +57,7 @@ KexAlgorithms {{ ssh_server__kex_algorithms|join(',') }}
 Ciphers {{ ssh_server__ciphers|join(',') }}
 MACs {{ ssh_server__macs|join(',') }}
 
-{% if _ssh_server__version is version_compare(7.4, '<') %}
+{% if _ssh_server__version is version(7.4, '<') %}
 ## Protocol 1
 ServerKeyBits {{ ssh_server__server_key_bits|int }}
 KeyRegenerationInterval {{ ssh_server__key_regeneration_interval|int }}
@@ -78,7 +78,7 @@ AuthenticationMethods {{ ssh_server__authentication_methods }}
 {% endif %}
 
 UsePAM {{ macros.bool(ssh_server__use_pam) }}
-{% if _ssh_server__version is version_compare(7.4, '<') %}
+{% if _ssh_server__version is version(7.4, '<') %}
 UseLogin {{ macros.bool(ssh_server__use_login) }}
 {% endif %}
 
@@ -95,7 +95,7 @@ KbdInteractiveAuthentication {{ macros.bool(ssh_server__keyboard_interactive_aut
 ## PubKey authentication
 PubkeyAuthentication {{ macros.bool(ssh_server__pubkey_authentication) }}
 AuthorizedKeysFile {{ ssh_server__authorized_keys if ssh_server__authorized_keys is string else ssh_server__authorized_keys|join(' ') }}
-{% if ssh_server__authorized_keys_command is defined and _ssh_server__version is version_compare(6.2, '>=') %}
+{% if ssh_server__authorized_keys_command is defined and _ssh_server__version is version(6.2, '>=') %}
 AuthorizedKeysCommand {{ ssh_server__authorized_keys_command }}
 AuthorizedKeysCommandUser {{ ssh_server__authorized_keys_command_user }}
 {%   if ssh_server__authorized_principals_file is defined %}
@@ -107,12 +107,12 @@ TrustedUserCAKeys "{{ ssh_server__trusted_user_ca_keys }}"
 {%   if ssh_server__revoked_keys is defined %}
 RevokedKeys "{{ ssh_server__revoked_keys }}"
 {%   endif %}
-{%   if ansible_os_family not in ['RedHat'] and _ssh_server__version is version_compare(6.7, '<') %}
+{%   if ansible_os_family not in ['RedHat'] and _ssh_server__version is version(6.7, '<') %}
 PermitBlacklistedKeys {{ macros.bool(ssh_server__permit_blacklisted_keys) }}
 {%   endif %}
 {% endif %}
 
-{% if _ssh_server__version is version_compare(7.4, '<') %}
+{% if _ssh_server__version is version(7.4, '<') %}
 ## RSAAuthentication
 # Protocol 1
 RSAAuthentication {{ macros.bool(ssh_server__rsa_authentication) }}
@@ -145,7 +145,7 @@ GSSAPIKeyExchange {{ macros.bool(ssh_server__gssapi_key_exchange) }}
 GSSAPICleanupCredentials {{ macros.bool(ssh_server__gssapi_cleanup_credentials) }}
 GSSAPIStrictAcceptorCheck {{ macros.bool(ssh_server__gssapi_strict_acceptor_check) }}
 GSSAPIStoreCredentialsOnRekey {{ macros.bool(ssh_server__gssapi_store_credentials_on_rekey) }}
-{%   if _ssh_server__version is version_compare(6.6, '>=') and ansible_distribution not in ['Debian'] %}
+{%   if _ssh_server__version is version(6.6, '>=') and ansible_distribution not in ['Debian'] %}
 GSSAPIEnablek5users {{ macros.bool(ssh_server__gssapi_enable_k5_users) }}
 {%   endif %}
 {% endif %}
@@ -182,14 +182,14 @@ MaxStartups {{ ssh_server__max_startups.start~':'~ssh_server__max_startups.rate~
 ## User environment
 AcceptEnv {{ ssh_server__accept_env|unique|join(' ') }}
 PermitUserEnvironment {{ macros.bool(ssh_server__permit_user_environment) }}
-{% if _ssh_server__version is version_compare(6.7, '>=') %}
+{% if _ssh_server__version is version(6.7, '>=') %}
 PermitUserRC {{ macros.bool(ssh_server__permit_user_rc) }}
 {% endif %}
 PermitTTY {{ macros.bool(ssh_server__permit_tty) }}
 StrictModes {{ macros.bool(ssh_server__strict_modes) }}
 
 ## Greeting
-{% if _ssh_server__version is version_compare(6.1, '>=') and ssh_server__version_addendum is defined %}
+{% if _ssh_server__version is version(6.1, '>=') and ssh_server__version_addendum is defined %}
 VersionAddendum {{ ssh_server__version_addendum }}
 {% endif %}
 Banner {{ ssh_server__banner }}
@@ -202,7 +202,7 @@ PrintLastLog {{ macros.bool(ssh_server__print_last_log) }}
 
 ## SESSION
 ChrootDirectory {{ ssh_server__chroot_directory }}
-{% if _ssh_server__version is version_compare(4.4, '>=') and ssh_server__force_command is defined %}
+{% if _ssh_server__version is version(4.4, '>=') and ssh_server__force_command is defined %}
 ForceCommand {{ ssh_server__force_command }}
 {% endif %}
 
@@ -247,7 +247,7 @@ Match {{ entry.match }}
 {%         set matched_options = [] %}
 {%         set matched_value = [] %}
 {%         for version, value in opt|dictsort(reverse=true) %}
-{%           if not matched_value and _ssh_server__version is version_compare(version, '>=') %}
+{%           if not matched_value and _ssh_server__version is version(version, '>=') %}
 {%             set _ = matched_value.append(true) %}
 {%             set _ = matched_options.extend([value] if value is string else value) %}
 {%           endif %}
